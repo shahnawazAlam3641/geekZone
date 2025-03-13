@@ -5,12 +5,15 @@ import { FieldValues, useForm } from "react-hook-form";
 import { Link } from "react-router";
 import { BASE_URL } from "../../utils/constants";
 import { useEffect, useState } from "react";
+import { addUser } from "../../store/slices/authSlice";
+import { useDispatch } from "react-redux";
 
 const Register = () => {
   const { register, handleSubmit } = useForm();
 
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const dispatch = useDispatch();
 
   const registerUser = async (data: FieldValues) => {
     try {
@@ -19,9 +22,8 @@ const Register = () => {
         withCredentials: true,
       });
 
+      dispatch(addUser(response.data.user));
       setLoading(false);
-
-      console.log(response.data);
     } catch (err) {
       setLoading(false);
 
