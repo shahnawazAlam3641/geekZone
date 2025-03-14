@@ -12,3 +12,11 @@ export interface UserDocument extends Document {
   pendingFriendRequests: Types.ObjectId[];
   createdAt: Date;
 }
+
+export interface RequestWithUser extends Request {
+  userId?: string;
+  cookies: {
+    token?: string;
+    [key: string]: string | undefined;
+  };
+}

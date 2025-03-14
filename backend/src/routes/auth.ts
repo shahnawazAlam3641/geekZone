@@ -3,6 +3,8 @@ import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import User from "../models/User";
 import { z } from "zod";
+import { RequestWithUser } from "../types";
+import { auth } from "../middleware/auth";
 
 const router = express.Router();
 
@@ -61,10 +63,12 @@ router.post("/register", async (req: Request, res: Response): Promise<any> => {
 
     const existingUser = await User.findOne({ $or: [{ email }, { username }] });
     if (existingUser?.username == username) {
-      return res.status(400).json({ success: true, message: "Username Taken" });
+      return res
+        .status(400)
+        .json({ success: false, message: "Username Taken" });
     } else if (existingUser) {
       return res.status(400).json({
-        success: true,
+        success: false,
         message: "User with this email already exists",
       });
     }
@@ -179,6 +183,20 @@ router.post("/logout", (req: Request, res: Response) => {
     expires: new Date(0),
   });
   res.json({ success: true, message: "Logged out successfully" });
+});
+
+router.get("/me", auth, async (req: any, res: Response): Promise<void> => {
+  try {
+    const user = await User.findById(req.userId).select("-password");
+    if (!user) {
+      res.status(404).json({ message: "User not found" });
+      return;
+    }
+    res.json({ user });
+    return;
+  } catch (error) {
+    res.status(500).json({ message: "Server error" });
+  }
 });
 
 export default router;
