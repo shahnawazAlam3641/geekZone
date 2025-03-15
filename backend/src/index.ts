@@ -5,6 +5,7 @@ import cors from "cors";
 import { connectDB } from "./config/database";
 
 import authRoutes from "./routes/auth";
+import postRoutes from "./routes/post";
 
 dotenv.config();
 
@@ -28,6 +29,7 @@ app.get("/api/v1/check", (req, res) => {
 });
 
 app.use("/api/v1/auth", authRoutes);
+app.use("/api/v1//posts", postRoutes);
 
 connectDB().then(() => {
   app.listen(PORT, () => {

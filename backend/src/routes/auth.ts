@@ -1,9 +1,8 @@
-import express, { Request, response, Response } from "express";
+import express, { Request, Response } from "express";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import User from "../models/User";
 import { z } from "zod";
-import { RequestWithUser } from "../types";
 import { auth } from "../middleware/auth";
 
 const router = express.Router();
@@ -44,12 +43,12 @@ const loginSchema = z.object({
     ),
 });
 
-router.post("/register", async (req: Request, res: Response): Promise<any> => {
+router.post("/register", async (req: Request, res: Response): Promise<void> => {
   try {
     const result = registerSchema.safeParse(req.body);
 
     if (!result.success) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         message: result.error.errors[0].message,
         errors: result.error.errors.map((err) => ({
@@ -57,20 +56,21 @@ router.post("/register", async (req: Request, res: Response): Promise<any> => {
           message: err.message,
         })),
       });
+      return;
     }
 
     const { username, email, password } = result.data;
 
     const existingUser = await User.findOne({ $or: [{ email }, { username }] });
     if (existingUser?.username == username) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Username Taken" });
+      res.status(400).json({ success: false, message: "Username Taken" });
+      return;
     } else if (existingUser) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         message: "User with this email already exists",
       });
+      return;
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -97,7 +97,7 @@ router.post("/register", async (req: Request, res: Response): Promise<any> => {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    return res.status(201).json({
+    res.status(201).json({
       success: true,
       message: "User registeration successfull",
       user: {
@@ -108,20 +108,20 @@ router.post("/register", async (req: Request, res: Response): Promise<any> => {
         isVerified: user.isVerified,
       },
     });
+    return;
   } catch (error) {
     console.error(error);
-    return res
-      .status(500)
-      .json({ success: false, message: "Server error", error });
+    res.status(500).json({ success: false, message: "Server error", error });
   }
+  return;
 });
 
-router.post("/login", async (req: Request, res: Response): Promise<any> => {
+router.post("/login", async (req: Request, res: Response): Promise<void> => {
   try {
     const result = loginSchema.safeParse(req.body);
 
     if (!result.success) {
-      return res.status(400).json({
+      res.status(400).json({
         success: false,
         message: result.error.errors[0].message,
         errors: result.error.errors.map((err) => ({
@@ -129,22 +129,21 @@ router.post("/login", async (req: Request, res: Response): Promise<any> => {
           message: err.message,
         })),
       });
+      return;
     }
 
     const { email, password } = result.data;
 
     const user = await User.findOne({ email });
     if (!user) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Invalid credentials" });
+      res.status(400).json({ success: false, message: "Invalid credentials" });
+      return;
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res
-        .status(400)
-        .json({ success: false, message: "Invalid credentials" });
+      res.status(400).json({ success: false, message: "Invalid credentials" });
+      return;
     }
 
     const token = jwt.sign(
@@ -161,7 +160,7 @@ router.post("/login", async (req: Request, res: Response): Promise<any> => {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    return res.status(200).json({
+    res.status(200).json({
       success: true,
       message: "User login successfull",
       user: {
@@ -172,8 +171,10 @@ router.post("/login", async (req: Request, res: Response): Promise<any> => {
         isVerified: user.isVerified,
       },
     });
+    return;
   } catch (error) {
     res.status(500).json({ message: "Server error" });
+    return;
   }
 });
 
@@ -185,9 +186,10 @@ router.post("/logout", (req: Request, res: Response) => {
   res.json({ success: true, message: "Logged out successfully" });
 });
 
-router.get("/me", auth, async (req: any, res: Response): Promise<void> => {
+router.get("/me", auth, async (req: Request, res: Response): Promise<void> => {
   try {
-    const user = await User.findById(req.userId).select("-password");
+    const userId = req.userId;
+    const user = await User.findById(userId).select("-password");
     if (!user) {
       res.status(404).json({ message: "User not found" });
       return;

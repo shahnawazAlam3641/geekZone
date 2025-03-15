@@ -1,10 +1,10 @@
-import { Response, NextFunction } from "express";
+import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
-import { RequestWithUser } from "../types";
+import { RequestWithUserId } from "../types";
 
-export const auth = (req: any, res: Response, next: NextFunction) => {
+export const auth = (req: Request, res: Response, next: NextFunction): void => {
   try {
-    const token = req.cookies.token;
+    const token = req.cookies?.token;
 
     if (!token) {
       res.status(401).json({ message: "Authentication required" });
