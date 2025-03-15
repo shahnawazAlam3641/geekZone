@@ -45,3 +45,23 @@ export interface CommentDocument extends Document {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export interface MessageDocument extends Document {
+  _id: Types.ObjectId;
+  conversation: Types.ObjectId;
+  sender: Types.ObjectId | UserDocument;
+  content: string;
+  read: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}
+export interface ConversationDocument extends Document {
+  _id: Types.ObjectId;
+  participants: Types.ObjectId[] | UserDocument[];
+  isGroup: boolean;
+  groupName?: string;
+  groupAdmin?: Types.ObjectId | UserDocument;
+  lastMessage?: Types.ObjectId | MessageDocument;
+  createdAt: Date;
+  updatedAt: Date;
+}
