@@ -6,6 +6,9 @@ import { connectDB } from "./config/database";
 
 import authRoutes from "./routes/auth";
 import postRoutes from "./routes/post";
+import userRoutes from "./routes/user";
+import conversationRoutes from "./routes/conversation";
+import messageRoutes from "./routes/message";
 
 dotenv.config();
 
@@ -30,6 +33,9 @@ app.get("/api/v1/check", (req, res) => {
 
 app.use("/api/v1/auth", authRoutes);
 app.use("/api/v1//posts", postRoutes);
+app.use("/api/users", userRoutes);
+app.use("/api/v1//conversation", conversationRoutes);
+app.use("/api/v1//message", messageRoutes);
 
 connectDB().then(() => {
   app.listen(PORT, () => {
