@@ -2,40 +2,44 @@ import axios, { AxiosError } from "axios";
 import { Lock, LogIn, Mail } from "lucide-react";
 import { motion } from "motion/react";
 import { FieldValues, useForm } from "react-hook-form";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { BASE_URL } from "../../utils/constants";
-import { useState } from "react";
-import { useDispatch } from "react-redux";
-import { addUser, removeUser } from "../../store/slices/authSlice";
+import { setUser, setLoading, setError } from "../../store/slices/authSlice";
+import { useAppDispatch, useAppSelector } from "../../store";
+import { useLocation } from "react-router";
 
 const Login = () => {
-  const { register, handleSubmit } = useForm();
+  const { loading, error } = useAppSelector((state) => state.auth);
 
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const dispatch = useDispatch();
+  const { register, handleSubmit } = useForm();
+  const navigate = useNavigate();
+  const location = useLocation();
+  const from = location.state?.from?.pathname || "/feed"; // Default to /feed if no redirect path
+
+  const dispatch = useAppDispatch();
 
   const loginUser = async (data: FieldValues) => {
     try {
-      setLoading(true);
+      dispatch(setLoading(true));
+      dispatch(setError(null));
       const response = await axios.post(BASE_URL + "/auth/login", data, {
         withCredentials: true,
       });
 
-      dispatch(addUser(response.data.user));
-      setLoading(false);
+      dispatch(setUser(response.data.user));
+      navigate(from);
 
       console.log(response);
     } catch (err) {
-      setLoading(false);
-
       const error = err as AxiosError<{
         message: string;
         success: boolean;
         errors?: { path: string; message: string }[];
       }>;
-      setError(
-        error?.response?.data?.message || "An error occurred during sign in"
+      dispatch(
+        setError(
+          error?.response?.data?.message || "An error occurred during sign in"
+        )
       );
       console.log(err);
     }
@@ -43,6 +47,7 @@ const Login = () => {
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
+      {/* <Link to={"/main"}>navigate</Link> */}
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

@@ -2,28 +2,31 @@ import axios, { AxiosError } from "axios";
 import { Lock, Mail, User, UserPlus } from "lucide-react";
 import { motion } from "motion/react";
 import { FieldValues, useForm } from "react-hook-form";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { BASE_URL } from "../../utils/constants";
-import { useEffect, useState } from "react";
-import { addUser } from "../../store/slices/authSlice";
-import { useDispatch } from "react-redux";
+import { setUser, setLoading, setError } from "../../store/slices/authSlice";
+import { useAppDispatch, useAppSelector } from "../../store";
 
 const Register = () => {
   const { register, handleSubmit } = useForm();
 
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
-  const dispatch = useDispatch();
+  const { error, loading } = useAppSelector((state) => state.auth);
+  const dispatch = useAppDispatch();
+  const navigate = useNavigate();
 
   const registerUser = async (data: FieldValues) => {
     try {
-      setLoading(true);
+      // setLoading(true);
+      dispatch(setLoading(true));
+      dispatch(setError(null));
+
       const response = await axios.post(BASE_URL + "/auth/register", data, {
         withCredentials: true,
       });
 
-      dispatch(addUser(response.data.user));
-      setLoading(false);
+      dispatch(setUser(response.data.user));
+
+      navigate("/feed");
     } catch (err) {
       setLoading(false);
 
@@ -32,17 +35,15 @@ const Register = () => {
         message: string;
         errors?: { path: string; message: string }[];
       }>;
-      setError(
-        error?.response?.data?.message ||
-          "An error occurred during registration"
+      dispatch(
+        setError(
+          error?.response?.data?.message ||
+            "An error occurred during registration"
+        )
       );
       console.log(err);
     }
   };
-
-  useEffect(() => {
-    console.log(error);
-  }, [error]);
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
