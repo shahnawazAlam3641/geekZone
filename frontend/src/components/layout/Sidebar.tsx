@@ -8,31 +8,23 @@ import {
   Settings,
   LogOut,
 } from "lucide-react";
-import { useDispatch } from "react-redux";
-import { logout } from "../../store/slices/authSlice";
-import type { AppDispatch } from "../../store";
 import NavItem from "../common/NavItem";
-import axios from "axios";
-import { BASE_URL } from "../../utils/constants";
+import { useAuth } from "../../hooks/useAuth";
+import { useNavigate } from "react-router";
+import { useAppSelector } from "../../store";
 
 interface SidebarProps {
   onClose?: () => void;
 }
 
-export default function Sidebar({ onClose }: SidebarProps) {
-  const dispatch = useDispatch<AppDispatch>();
+const Sidebar = ({ onClose }: SidebarProps) => {
+  const { logoutUser } = useAuth();
+  const navigate = useNavigate();
+  const { user } = useAppSelector((state) => state.auth);
 
   const handleLogout = async () => {
-    try {
-      await axios.post(
-        BASE_URL + "/auth/logout",
-        {},
-        { withCredentials: true }
-      );
-      dispatch(logout());
-    } catch (error) {
-      console.log(error);
-    }
+    await logoutUser();
+    navigate("/login");
   };
 
   const handleNavigation = () => {
@@ -42,69 +34,60 @@ export default function Sidebar({ onClose }: SidebarProps) {
   };
 
   return (
-    <div className="w-64 h-screen bg-background-lighter border-r border-gray-800 p-4">
+    <motion.div
+      initial={{ x: -300, opacity: 0 }}
+      animate={{ x: 0, opacity: 1 }}
+      exit={{ x: -300, opacity: 0 }}
+      transition={{ duration: 0.3 }}
+      className="fixed left-0 top-0 h-full w-64 bg-background-lighter border-r border-gray-800 p-4 z-50"
+    >
       <div className="flex flex-col h-full">
         <div className="flex items-center gap-2 mb-8">
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ type: "spring", stiffness: 500, damping: 30 }}
-            className="w-10 h-10 bg-primary rounded-lg flex items-center justify-center"
-          >
-            <span className="text-xl font-bold">G</span>
-          </motion.div>
-          <span className="text-xl font-bold">GeekNET</span>
+          <h1 className="text-2xl font-bold text-primary">GeekZone</h1>
         </div>
 
-        <nav className="flex-1">
-          <ul className="space-y-2">
-            <NavItem
-              to="/feed"
-              icon={<Home />}
-              label="Home"
-              onClick={handleNavigation}
-            />
-            <NavItem
-              to="/search"
-              icon={<Search />}
-              label="Search"
-              onClick={handleNavigation}
-            />
-            <NavItem
-              to="/notifications"
-              icon={<Bell />}
-              label="Notifications"
-              onClick={handleNavigation}
-            />
-            <NavItem
-              to="/messages"
-              icon={<MessageSquare />}
-              label="Messages"
-              onClick={handleNavigation}
-            />
-            <NavItem
-              to="/profile"
-              icon={<User />}
-              label="Profile"
-              onClick={handleNavigation}
-            />
-            <NavItem
-              to="/settings"
-              icon={<Settings />}
-              label="Settings"
-              onClick={handleNavigation}
-            />
-          </ul>
+        <nav className="flex-1 space-y-2">
+          <NavItem
+            icon={<Home className="w-6 h-6" />}
+            label="Home"
+            to="/feed"
+          />
+          <NavItem
+            icon={<Search className="w-6 h-6" />}
+            label="Search"
+            to="/search"
+          />
+          <NavItem
+            icon={<Bell className="w-6 h-6" />}
+            label="Notifications"
+            to="/notifications"
+          />
+          <NavItem
+            icon={<MessageSquare className="w-6 h-6" />}
+            label="Messages"
+            to="/messages"
+          />
+          <NavItem
+            icon={<User className="w-6 h-6" />}
+            label="Profile"
+            to={`/profile/${user?._id}`}
+          />
+          <NavItem
+            icon={<Settings className="w-6 h-6" />}
+            label="Settings"
+            to="/settings"
+          />
         </nav>
 
-        <button
+        <NavItem
+          icon={<LogOut className="w-6 h-6" />}
+          label="Logout"
+          to="#"
           onClick={handleLogout}
-          className="flex items-center gap-3 px-4 py-2 text-gray-400 hover:text-white hover:bg-background rounded-lg transition-colors"
-        >
-          <LogOut className="w-5 h-5" />
-          <span>Logout</span>
-        </button>
+        />
       </div>
-    </div>
+    </motion.div>
   );
-}
+};
+
+export default Sidebar;

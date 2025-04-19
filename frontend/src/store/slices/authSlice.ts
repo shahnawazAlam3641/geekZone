@@ -31,6 +31,7 @@ const authSlice = createSlice({
     },
     setLoading: (state, action) => {
       state.loading = action.payload;
+      console.log("loading auth changed to: " + state.loading);
     },
     setError: (state, action) => {
       state.error = action.payload;

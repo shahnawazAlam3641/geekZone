@@ -6,6 +6,7 @@ export interface UserDocument extends Document {
   email: string;
   password: string;
   profilePicture: string;
+  posts: Types.ObjectId[];
   bio: string;
   isVerified: boolean;
   friends: Types.ObjectId[];
@@ -35,6 +36,7 @@ export interface PostDocument extends Document {
   content: string;
   image: string;
   likes: Types.ObjectId[];
+  savedBy: Types.ObjectId[];
   comments: Types.DocumentArray<CommentDocument>;
   createdAt: Date;
 }

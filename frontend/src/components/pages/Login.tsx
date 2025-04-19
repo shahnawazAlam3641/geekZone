@@ -22,14 +22,17 @@ const Login = () => {
     try {
       dispatch(setLoading(true));
       dispatch(setError(null));
+
       const response = await axios.post(BASE_URL + "/auth/login", data, {
         withCredentials: true,
       });
 
-      dispatch(setUser(response.data.user));
-      navigate(from);
-
-      console.log(response);
+      if (response.data.success && response.data.user) {
+        dispatch(setUser(response.data.user));
+        navigate(from, { replace: true });
+      } else {
+        dispatch(setError("Login failed. Please try again."));
+      }
     } catch (err) {
       const error = err as AxiosError<{
         message: string;
@@ -41,7 +44,8 @@ const Login = () => {
           error?.response?.data?.message || "An error occurred during sign in"
         )
       );
-      console.log(err);
+    } finally {
+      dispatch(setLoading(false));
     }
   };
 

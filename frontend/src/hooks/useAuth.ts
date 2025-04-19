@@ -17,10 +17,17 @@ export function useAuth() {
       const checkAuth = async () => {
         try {
           dispatch(setLoading(true));
+          console.log("loading auth: " + loading);
+          console.log("Checking auth please wait...........");
           const response = await axios.get(BASE_URL + "/auth/me", {
-            withCredentials: true,
+            withCredentials: true, // Important: This ensures cookies are sent with the request
           });
-          dispatch(setUser(response.data.user));
+
+          if (response.data.user) {
+            dispatch(setUser(response.data.user));
+          } else {
+            dispatch(logout());
+          }
         } catch (error) {
           console.log("Auth error:", error);
           dispatch(logout());
@@ -33,5 +40,20 @@ export function useAuth() {
     }
   }, [dispatch, user, loading]);
 
-  return { user, isAuthenticated: !!user };
+  const logoutUser = async () => {
+    try {
+      await axios.post(
+        BASE_URL + "/auth/logout",
+        {},
+        {
+          withCredentials: true,
+        }
+      );
+      dispatch(logout());
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
+  };
+
+  return { user, isAuthenticated: !!user, logoutUser };
 }

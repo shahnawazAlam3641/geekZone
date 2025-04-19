@@ -1,9 +1,12 @@
-import { Outlet } from "react-router";
-import { useState } from "react";
+import { ReactNode, useState } from "react";
 import { Menu } from "lucide-react";
 import Sidebar from "./Sidebar";
 
-export default function MainLayout() {
+interface MainLayoutProps {
+  children: ReactNode;
+}
+
+export default function MainLayout({ children }: MainLayoutProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   return (
@@ -27,9 +30,7 @@ export default function MainLayout() {
 
       {/* Main content */}
       <main className="flex-1 lg:ml-64">
-        <div className="container mx-auto px-4 py-8">
-          <Outlet />
-        </div>
+        <div className="container mx-auto px-4 py-8">{children}</div>
       </main>
 
       {/* Overlay for mobile */}

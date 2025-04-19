@@ -36,6 +36,12 @@ const UserSchema = new Schema<UserDocument>(
       type: Boolean,
       default: false,
     },
+    posts: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "Post",
+      },
+    ],
     friends: [
       {
         type: Schema.Types.ObjectId,

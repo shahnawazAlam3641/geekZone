@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { FieldValues, useForm } from "react-hook-form";
 import { setLoading, updatePost } from "../../store/slices/postSlice";
+import { Link } from "react-router";
 
 interface Comment {
   _id: string;
@@ -78,7 +79,7 @@ const Post = ({ post }: { post: PostSchema }) => {
   };
 
   const isLiked = user && post?.likes?.includes(user._id);
-  console.log(post);
+  // console.log(post);
   return (
     <motion.article
       initial={{ opacity: 0, y: 20 }}
@@ -97,7 +98,11 @@ const Post = ({ post }: { post: PostSchema }) => {
           className="w-10 h-10 rounded-full object-cover"
         />
         <div>
-          <h3 className="font-semibold">{post?.author?.username}</h3>
+          <Link to={`/profile/${post?.author?._id}`}>
+            <h3 className="font-semibold hover:underline">
+              {post?.author?.username}
+            </h3>
+          </Link>
           <p className="text-sm text-gray-400">
             {formatDistanceToNow(new Date(post?.createdAt), {
               addSuffix: true,
@@ -107,16 +112,33 @@ const Post = ({ post }: { post: PostSchema }) => {
       </div>
 
       {/* Post Content */}
-      <p className="text-gray-200 mb-4">{post?.content}</p>
-
-      {/* Post Image (if any) */}
-      {post?.image && (
-        <img
-          src={post?.image}
-          alt="Post content"
-          className="w-full h-64 object-cover rounded-lg mb-4"
-        />
+      {post?.content && (
+        <p className="text-gray-200 mb-4 whitespace-pre-wrap">
+          {post?.content}
+        </p>
       )}
+
+      {/* Post Image - if not undefined*/}
+      {
+        post?.image && (
+          <img
+            src={post?.image}
+            alt="Post content"
+            className="w-full h-64 object-cover rounded-lg mb-4"
+            onError={(e) => {
+              const target = e.target as HTMLImageElement;
+              target.src = "/default-post.jpg";
+            }}
+          />
+        )
+        // (
+        //   <div className="w-full h-32 bg-gray-800/50 rounded-lg mb-4 flex items-center justify-center">
+        //     <p className="text-gray-400 text-center px-4">
+        //       {post?.content || "No content available"}
+        //     </p>
+        //   </div>
+        // )
+      }
 
       {/* Post Actions */}
       <div className="flex flex-wrap items-center gap-4 sm:gap-6 text-gray-400">

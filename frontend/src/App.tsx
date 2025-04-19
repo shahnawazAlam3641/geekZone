@@ -1,54 +1,68 @@
 import "./App.css";
-import { Navigate, Route, Routes } from "react-router";
-import Landing from "./components/pages/Landing";
-import Register from "./components/pages/Register";
+import { Route, Routes } from "react-router-dom";
+import { Toaster } from "react-hot-toast";
+import ProtectedRoute from "./components/common/ProtectedRoute";
 import Login from "./components/pages/Login";
-import MainLayout from "./components/layout/MainLayout";
-import ProtectedRoute from "./components/ProtectedRoute";
+import Register from "./components/pages/Register";
 import Feed from "./components/layout/Feed";
+import UserProfile from "./components/pages/UserProfile";
+import Landing from "./components/pages/Landing";
+import MainLayout from "./components/layout/MainLayout";
 
 function App() {
   return (
-    <Routes>
-      <Route path="/" element={<Landing />} />
-      <Route path="/register" element={<Register />}></Route>
-      <Route path="/login" element={<Login />}></Route>
-
-      <Route
-        path="/"
-        element={
-          <ProtectedRoute>
-            <MainLayout />
-          </ProtectedRoute>
-        }
-      >
-        <Route path="feed" element={<Feed />} />
+    <>
+      <Toaster position="top-right" />
+      <Routes>
+        {/* Public routes - only accessible when not authenticated */}
         <Route
-          path="messages"
-          element={<h1 className="text-5xl text-amber-50">message</h1>}
-        />
-        <Route
-          path="search"
-          element={<div className="text-5xl text-amber-50">Search Page</div>}
-        />
-        <Route
-          path="notifications"
+          path="/"
           element={
-            <div className="text-5xl text-amber-50">Notifications Page</div>
+            <ProtectedRoute requireAuth={false}>
+              <Landing />
+            </ProtectedRoute>
           }
         />
         <Route
-          path="profile"
-          element={<div className="text-5xl text-amber-50">Profile Page</div>}
+          path="/login"
+          element={
+            <ProtectedRoute requireAuth={false}>
+              <Login />
+            </ProtectedRoute>
+          }
         />
         <Route
-          path="settings"
-          element={<div className="text-5xl text-amber-50">Settings Page</div>}
+          path="/register"
+          element={
+            <ProtectedRoute requireAuth={false}>
+              <Register />
+            </ProtectedRoute>
+          }
         />
-      </Route>
 
-      <Route path="*" element={<Navigate to="/" replace />} />
-    </Routes>
+        <Route
+          path="/profile/:userId"
+          element={
+            // <ProtectedRoute>
+            <MainLayout>
+              <UserProfile />
+              {/* <div>Call </div> */}
+            </MainLayout>
+            // </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/feed"
+          element={
+            <ProtectedRoute>
+              <MainLayout>
+                <Feed />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+      </Routes>
+    </>
   );
 }
 

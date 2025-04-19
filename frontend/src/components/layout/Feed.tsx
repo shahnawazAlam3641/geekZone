@@ -35,6 +35,7 @@ const Feed = () => {
   );
 
   useEffect(() => {
+    console.log("feed render");
     fetchPosts();
   }, [page]);
 
