@@ -12,13 +12,19 @@ import axios from "axios";
 import { BASE_URL } from "../../utils/constants";
 import Post, { PostSchema } from "../common/Post";
 import { FieldValues, useForm } from "react-hook-form";
+import { X } from "lucide-react";
 
 const Feed = () => {
-  const { register, handleSubmit } = useForm();
+  const { register, handleSubmit, reset, watch } = useForm();
   const [page, setPage] = useState(1);
+  const [showModal, setShowModal] = useState(false);
+  const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const [previewURL, setPreviewURL] = useState<string | null>(null);
   const observer = useRef<IntersectionObserver>(null);
   const dispatch = useAppDispatch();
   const { posts, loading, hasMore } = useAppSelector((state) => state.posts);
+  const { user } = useAppSelector((state) => state.auth);
+  const content = watch("content");
 
   const lastPostRef = useCallback(
     (node: HTMLDivElement) => {
@@ -35,13 +41,11 @@ const Feed = () => {
   );
 
   useEffect(() => {
-    console.log("feed render");
     fetchPosts();
   }, [page]);
 
   const fetchPosts = async () => {
     if (!hasMore || loading) return;
-
     try {
       dispatch(setLoading(true));
       dispatch(setError(null));
@@ -52,7 +56,6 @@ const Feed = () => {
       dispatch(setHasMore(response.data.hasMore));
     } catch (error) {
       dispatch(setError("Error fetching posts"));
-      console.error("Error fetching posts:", error);
     } finally {
       dispatch(setLoading(false));
     }
@@ -61,44 +64,167 @@ const Feed = () => {
   const handleCreatePost = async (data: FieldValues) => {
     if (!data.content.trim()) return;
 
+    const formData = new FormData();
+    formData.append("content", data.content);
+    if (selectedImage) {
+      formData.append("postPicture", selectedImage);
+    }
+
     try {
-      const response = await axios.post(
-        BASE_URL + "/posts/create",
-        { content: data.content },
-        { withCredentials: true }
-      );
+      const response = await axios.post(BASE_URL + "/posts/create", formData, {
+        withCredentials: true,
+        headers: { "Content-Type": "multipart/form-data" },
+      });
       dispatch(addNewPost(response.data.post));
+      reset();
+      setSelectedImage(null);
+      setPreviewURL(null);
+      setShowModal(false);
     } catch (error) {
       dispatch(setError("Error creating post"));
-      console.error("Error creating post:", error);
+    }
+  };
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setSelectedImage(file);
+      setPreviewURL(URL.createObjectURL(file));
     }
   };
 
   return (
     <div className="max-w-2xl mx-auto w-full px-4 sm:px-6 lg:px-8 my-5 max-h-screen overflow-y-scroll">
-      <motion.form
+      {/* Open Post Modal */}
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         className="bg-background-lighter rounded-xl p-4 mb-8 border border-gray-800"
-        onSubmit={handleSubmit((data: FieldValues) => {
-          handleCreatePost(data);
-        })}
+        onClick={() => setShowModal(true)}
       >
         <textarea
-          {...register("content")}
-          placeholder="Share your thoughts..."
-          className="w-full bg-background rounded-lg p-4 border border-gray-700 focus:border-primary focus:outline-none transition-colors resize-none"
+          placeholder="What's on your mind?"
+          className="w-full bg-background rounded-lg p-4 border border-gray-700 focus:outline-none transition-colors resize-none cursor-pointer"
           rows={3}
+          value=""
+          onClick={() => setShowModal(true)}
         />
-        <div className="flex justify-end mt-4">
+        <div className="flex justify-end mt-2">
           <button
             type="submit"
-            className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
+            onClick={() => setShowModal(true)}
+            className="btn-primary cursor-pointer "
           >
             Post
           </button>
         </div>
-      </motion.form>
+      </motion.div>
+
+      {/* Modal */}
+      <AnimatePresence>
+        {showModal && (
+          <motion.div
+            className="fixed inset-0 z-50 flex items-center justify-center bg-[#000000a1] bg-opacity-60 backdrop-blur-sm"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+          >
+            <motion.div
+              className="bg-background max-w-lg w-full mx-4 rounded-xl p-6 relative border border-gray-900"
+              initial={{ y: 50, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              exit={{ y: 50, opacity: 0 }}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                onClick={() => setShowModal(false)}
+                className="absolute top-3 right-3 p-1 rounded-full hover:bg-gray-700 transition-colors"
+              >
+                <X className="w-5 h-5" />
+              </button>
+
+              {/* User Info */}
+              <div className="flex items-center mb-4">
+                <img
+                  src={user?.profilePicture}
+                  alt="Profile"
+                  className="w-10 h-10 rounded-full object-cover"
+                />
+                <div className="ml-3">
+                  <h3 className="font-semibold">{user?.username}</h3>
+                  <p className="text-sm text-gray-400">Post to Everyone</p>
+                </div>
+              </div>
+
+              {/* Form */}
+              <form onSubmit={handleSubmit(handleCreatePost)}>
+                <textarea
+                  {...register("content")}
+                  placeholder="Write something..."
+                  maxLength={500}
+                  rows={4}
+                  className="w-full p-3 rounded-lg bg-background-lighter border border-gray-700 focus:outline-none resize-none"
+                />
+                <div className="text-right text-xs text-gray-400 mt-1">
+                  {content?.length || 0}/500
+                </div>
+
+                {/* Image Upload */}
+                <div className="mt-4">
+                  {previewURL ? (
+                    <div className="relative w-full">
+                      <img
+                        src={previewURL}
+                        alt="Preview"
+                        className="rounded-lg max-h-60 object-cover w-full"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedImage(null);
+                          setPreviewURL(null);
+                        }}
+                        className="absolute top-2 right-2 bg-black bg-opacity-50 text-white p-1 rounded-full"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ) : (
+                    <label className="block mt-2 border border-dashed border-gray-500 rounded-lg p-4 text-center cursor-pointer hover:bg-background-lighter transition">
+                      <input
+                        type="file"
+                        accept="image/*"
+                        className="hidden"
+                        onChange={handleImageChange}
+                      />
+                      <span className="text-sm text-gray-400">
+                        Click to upload an image
+                      </span>
+                    </label>
+                  )}
+                </div>
+
+                {/* AI Button + Submit */}
+                <div className="mt-4 flex justify-between items-center">
+                  <button
+                    type="button"
+                    className="text-sm px-4 py-2 border border-primary rounded-md hover:bg-primary hover:text-white transition"
+                  >
+                    Enhance with AI
+                  </button>
+                  <button
+                    type="submit"
+                    className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
+                    disabled={!content?.trim()}
+                  >
+                    Post
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
 
       {/* Posts */}
       {posts ? (

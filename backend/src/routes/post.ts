@@ -2,20 +2,29 @@ import express, { Request, Response } from "express";
 import { auth } from "../middleware/auth";
 import Post from "../models/Post";
 import mongoose from "mongoose";
+import { uploadImg } from "../middleware/uploadImg";
+import { uploadImage } from "../config/uploadImg";
 
 const router = express.Router();
 
 router.post(
   "/create",
+  uploadImg.single("postPicture"),
   auth,
   async (req: Request, res: Response): Promise<void> => {
     try {
       const { content, image } = req.body;
+
       const post = new Post({
         author: req.userId,
         content,
         image,
       });
+
+      if (req.file) {
+        const imageUrl = await uploadImage(req.file.buffer, "postPicture");
+        post.image = imageUrl;
+      }
 
       await post.save();
       await post.populate("author", "username profilePicture");
