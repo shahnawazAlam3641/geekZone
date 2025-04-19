@@ -75,7 +75,7 @@ const Feed = () => {
   };
 
   return (
-    <div className="max-w-2xl mx-auto w-full px-4 sm:px-6 lg:px-8">
+    <div className="max-w-2xl mx-auto w-full px-4 sm:px-6 lg:px-8 my-5 max-h-screen overflow-y-scroll">
       <motion.form
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}

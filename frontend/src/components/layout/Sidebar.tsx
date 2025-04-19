@@ -77,8 +77,13 @@ const Sidebar = ({ onClose }: SidebarProps) => {
             label="Settings"
             to="/settings"
           />
+          <NavItem
+            icon={<LogOut className="w-6 h-6" />}
+            label="Logout"
+            to="#"
+            onClick={handleLogout}
+          />
         </nav>
-
         <NavItem
           icon={<LogOut className="w-6 h-6" />}
           label="Logout"

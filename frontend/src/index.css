@@ -20,6 +20,37 @@
     body {
       @apply bg-background text-gray-100 font-sans;
     }
+
+    /* Scrollbar base */
+::-webkit-scrollbar {
+  width: 8px;             
+  height: 8px;             
+}
+
+/* Scrollbar track (the background) */
+::-webkit-scrollbar-track {
+  background: #1e1e1e;     
+  border-radius: 8px;
+}
+
+/* Scrollbar thumb (the draggable part) */
+::-webkit-scrollbar-thumb {
+  background: #444;        
+  border-radius: 8px;
+  border: 2px solid #1e1e1e;
+}
+
+/* On hover */
+::-webkit-scrollbar-thumb:hover {
+  background: #666;        
+}
+
+/* Firefox scrollbar styling */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #444 #1e1e1e; 
+}
+
   }
   
   @layer components {
@@ -34,6 +65,8 @@
     .card {
       @apply bg-background-lighter rounded-xl p-6 border border-gray-800;
     }
+
+
   }
 
 

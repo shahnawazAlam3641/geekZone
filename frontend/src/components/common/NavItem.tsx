@@ -9,7 +9,7 @@ interface NavItemProps {
 
 const NavItem = ({ to, icon, label, onClick }: NavItemProps) => {
   return (
-    <li>
+    <li className="list-none mt-5">
       <NavLink
         to={to}
         onClick={onClick}

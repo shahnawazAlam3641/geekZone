@@ -10,7 +10,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   return (
-    <div className="flex min-h-screen bg-background">
+    <div className="flex overflow-y-hidden h-screen bg-background">
       {/* Mobile menu button */}
       <button
         onClick={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -30,7 +30,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
 
       {/* Main content */}
       <main className="flex-1 lg:ml-64">
-        <div className="container mx-auto px-4 py-8">{children}</div>
+        <div className="container mx-auto px-4 py-0">{children}</div>
       </main>
 
       {/* Overlay for mobile */}
