@@ -9,6 +9,13 @@ import {
   RefreshCw,
   Image as ImageIcon,
   AlertTriangle,
+  Clock1,
+  CrossIcon,
+  Cross,
+  LucideCross,
+  CroissantIcon,
+  X,
+  MessageCircleOff,
 } from "lucide-react";
 import { useNavigate } from "react-router";
 import { useAppDispatch, useAppSelector } from "../../store";
@@ -21,6 +28,8 @@ import {
   setLoading,
   setProfile,
   setError,
+  unfriendUser,
+  rejectConnectionRequest,
 } from "../../store/slices/userProfileSlice";
 import Post from "../common/Post";
 import EditProfileModal from "./EditProfileModal";
@@ -75,7 +84,10 @@ interface UserProfile {
   posts: Post[];
   savedPosts: Post[];
   likedPosts: Post[];
-  connectionRequests: string[];
+  friends: string[];
+  pendingFriendRequests: string[];
+  recievedFriendRequests: string[];
+  sentFriendRequests: string[];
 }
 
 const UserProfile = () => {
@@ -175,6 +187,34 @@ const UserProfile = () => {
       try {
         setActionError(null);
         await dispatch(acceptConnectionRequest(userId));
+      } catch (error) {
+        const apiError = error as ApiError;
+        setActionError(
+          apiError.message || "Failed to accept connection request"
+        );
+      }
+    }
+  };
+
+  const handleRejectRequest = async () => {
+    if (userId) {
+      try {
+        setActionError(null);
+        await dispatch(rejectConnectionRequest(userId));
+      } catch (error) {
+        const apiError = error as ApiError;
+        setActionError(
+          apiError.message || "Failed to accept connection request"
+        );
+      }
+    }
+  };
+
+  const handleUnfriendUser = async () => {
+    if (userId) {
+      try {
+        setActionError(null);
+        await dispatch(unfriendUser(userId));
       } catch (error) {
         const apiError = error as ApiError;
         setActionError(
@@ -426,36 +466,93 @@ const UserProfile = () => {
               </motion.button>
             ) : (
               <>
-                <motion.button
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  onClick={handleSendMessage}
-                  className="btn-primary flex items-center space-x-2"
-                >
-                  <MessageSquare size={20} />
-                  <span>Message</span>
-                </motion.button>
-                {profile.connectionRequests?.includes(
-                  currentUser?._id || ""
-                ) ? (
+                {profile?.friends?.includes(currentUser?._id || "") && (
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    onClick={handleAcceptRequest}
-                    className="btn-secondary flex items-center space-x-2"
+                    onClick={handleSendMessage}
+                    className="btn-primary flex items-center space-x-2"
                   >
-                    <Check size={20} />
-                    <span>Accept Request</span>
+                    <MessageSquare size={20} />
+                    <span>Message</span>
                   </motion.button>
-                ) : (
+                )}
+
+                {profile.recievedFriendRequests?.includes(
+                  currentUser?._id || ""
+                ) && (
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    onClick={handleConnectionRequest}
                     className="btn-secondary flex items-center space-x-2"
                   >
-                    <UserPlus size={20} />
-                    <span>Connect</span>
+                    <Clock1 size={20} />
+
+                    <span>Request Pending</span>
+                  </motion.button>
+                )}
+                {profile.sentFriendRequests?.includes(
+                  currentUser?._id || ""
+                ) && (
+                  <>
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={handleAcceptRequest}
+                      className="btn-primary flex items-center space-x-2"
+                    >
+                      <Check size={20} />
+
+                      <span>Accept </span>
+                    </motion.button>
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={handleRejectRequest}
+                      className="btn-secondary flex items-center space-x-2"
+                    >
+                      <X size={20} />
+
+                      <span>Reject </span>
+                    </motion.button>
+                  </>
+                )}
+
+                {console.log(
+                  !profile.sentFriendRequests?.includes(currentUser?._id || ""),
+                  !profile.recievedFriendRequests?.includes(
+                    currentUser?._id || ""
+                  ),
+                  !profile?.friends?.includes(currentUser?._id || "")
+                )}
+                {!profile.sentFriendRequests?.includes(
+                  currentUser?._id || ""
+                ) &&
+                  !profile.recievedFriendRequests?.includes(
+                    currentUser?._id || ""
+                  ) &&
+                  !profile?.friends?.includes(currentUser?._id || "") && (
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={handleConnectionRequest}
+                      className="btn-primary flex items-center space-x-2"
+                    >
+                      <UserPlus size={20} />
+
+                      <span>Add Friend</span>
+                    </motion.button>
+                  )}
+                {profile?.friends?.includes(currentUser?._id || "") && (
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={handleUnfriendUser}
+                    className="btn-secondary flex items-center space-x-2"
+                  >
+                    <MessageCircleOff size={20} />
+
+                    <span>Unfriend</span>
                   </motion.button>
                 )}
               </>

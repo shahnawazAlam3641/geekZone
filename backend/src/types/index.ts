@@ -9,8 +9,10 @@ export interface UserDocument extends Document {
   posts: Types.ObjectId[];
   bio: string;
   isVerified: boolean;
-  friends: Types.ObjectId[];
   pendingFriendRequests: Types.ObjectId[];
+  friends: Types.ObjectId[];
+  sentFriendRequests: Types.ObjectId[];
+  recievedFriendRequests: Types.ObjectId[];
   createdAt: Date;
 }
 

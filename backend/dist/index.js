@@ -47,23 +47,23 @@ app.use("/api/v1/conversation", conversation_1.default);
 app.use("/api/v1/message", message_1.default);
 io.on("connection", (socket) => {
     console.log("A user connected");
-    socket.on("join-room", (roomId) => {
-        console.log(roomId.roomId);
-        socket.join(roomId.roomId);
+    socket.on("join-room", ({ conversationId }) => {
+        console.log(conversationId);
+        socket.join(conversationId);
     });
-    socket.on("leave-room", (roomId) => {
-        console.log(roomId.roomId);
-        socket.leave(roomId.roomId);
+    socket.on("leave-room", ({ conversationId }) => {
+        console.log(conversationId);
+        socket.leave(conversationId);
     });
-    socket.on("send-message", (message) => {
-        console.log(message.conversation);
-        io.to(message.conversation).emit("receive-message", message);
+    socket.on("send-message", ({ conversationId, message, }) => {
+        console.log({ conversationId, message });
+        io.to(conversationId).emit("receive-message", message);
     });
     socket.on("typing", ({ conversationId, username, }) => {
         socket.to(conversationId).emit("user-typing", { username });
     });
-    socket.on("stop-typing", (conversationId) => {
-        socket.to(conversationId).emit("user-stop-typing");
+    socket.on("stop-typing", ({ conversationId, username, }) => {
+        socket.to(conversationId).emit("user-stop-typing", { username });
     });
     socket.on("disconnect", () => {
         console.log("User disconnected");

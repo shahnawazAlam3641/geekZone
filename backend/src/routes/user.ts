@@ -42,6 +42,7 @@ router.get(
   }
 );
 
+//send friend request
 router.post(
   "/friends/request/:userId",
   auth,
@@ -57,13 +58,20 @@ router.post(
       }
 
       if (
-        receiver.pendingFriendRequests.includes(
+        receiver.recievedFriendRequests.includes(
           new mongoose.Types.ObjectId(req.userId)
-        )
+        ) ||
+        receiver.sentFriendRequests.includes(
+          new mongoose.Types.ObjectId(req.userId)
+        ) ||
+        sender.recievedFriendRequests.includes(
+          new mongoose.Types.ObjectId(userId)
+        ) ||
+        sender.sentFriendRequests.includes(new mongoose.Types.ObjectId(userId))
       ) {
         res
           .status(400)
-          .json({ success: false, message: "Friend request already sent" });
+          .json({ success: false, message: "Friend request already exists" });
         return;
       }
 
@@ -72,10 +80,13 @@ router.post(
         return;
       }
 
-      receiver.pendingFriendRequests.push(
+      receiver.recievedFriendRequests.push(
         new mongoose.Types.ObjectId(req.userId)
       );
+      sender.sentFriendRequests.push(new mongoose.Types.ObjectId(userId));
+
       await receiver.save();
+      await sender.save();
 
       res.json({ message: "Friend request sent" });
     } catch (error) {
@@ -87,6 +98,7 @@ router.post(
   }
 );
 
+//accept friend request
 router.post(
   "/friends/accept/:userId",
   auth,
@@ -102,7 +114,7 @@ router.post(
       }
 
       if (
-        !receiver.pendingFriendRequests.includes(
+        !receiver.recievedFriendRequests.includes(
           new mongoose.Types.ObjectId(userId)
         )
       ) {
@@ -112,9 +124,14 @@ router.post(
         return;
       }
 
-      receiver.pendingFriendRequests = receiver.pendingFriendRequests.filter(
+      receiver.recievedFriendRequests = receiver.recievedFriendRequests.filter(
         (id) => id.toString() !== userId
       );
+
+      sender.sentFriendRequests = receiver.sentFriendRequests.filter(
+        (id) => id.toString() !== req?.userId
+      );
+
       receiver.friends.push(new mongoose.Types.ObjectId(userId));
       sender.friends.push(new mongoose.Types.ObjectId(req.userId));
 
@@ -130,23 +147,42 @@ router.post(
   }
 );
 
+//reject friend request
 router.post(
   "/friends/reject/:userId",
   auth,
   async (req: Request, res: Response): Promise<void> => {
     try {
       const { userId } = req.params;
-      const user = await User.findById(req.userId);
+      const receiver = await User.findById(req.userId);
+      const sender = await User.findById(userId);
 
-      if (!user) {
+      if (!receiver || !sender) {
         res.status(404).json({ success: false, message: "User not found" });
         return;
       }
 
-      user.pendingFriendRequests = user.pendingFriendRequests.filter(
+      if (
+        !receiver.recievedFriendRequests.includes(
+          new mongoose.Types.ObjectId(userId)
+        )
+      ) {
+        res
+          .status(400)
+          .json({ success: false, message: "No friend request found" });
+        return;
+      }
+
+      receiver.recievedFriendRequests = receiver.recievedFriendRequests.filter(
         (id) => id.toString() !== userId
       );
-      await user.save();
+
+      sender.sentFriendRequests = receiver.sentFriendRequests.filter(
+        (id) => id.toString() !== req?.userId
+      );
+
+      await receiver.save();
+      await sender.save();
 
       res.json({ message: "Friend request rejected" });
     } catch (error) {
@@ -157,6 +193,46 @@ router.post(
   }
 );
 
+// unfriend a user
+router.post(
+  "/friends/unfriend/:userId",
+  auth,
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { userId } = req.params;
+      const currentUser = await User.findById(req.userId);
+      const friendUser = await User.findById(userId);
+
+      if (!currentUser || !friendUser) {
+        res.status(404).json({ success: false, message: "User not found" });
+        return;
+      }
+
+      // Remove each other from friends list
+      currentUser.friends = currentUser.friends.filter(
+        (id) => id.toString() !== userId
+      );
+
+      friendUser.friends = friendUser.friends.filter(
+        (id) => id.toString() !== req.userId
+      );
+
+      await currentUser.save();
+      await friendUser.save();
+
+      res.json({ success: true, message: "Unfriended successfully" });
+    } catch (error) {
+      console.error("Error unfriending user:", error);
+      res.status(500).json({
+        success: false,
+        message: "Error unfriending user",
+        error: error instanceof Error ? error.message : "Unknown error",
+      });
+    }
+  }
+);
+
+//get all friends
 router.get(
   "/friends",
   auth,
@@ -182,6 +258,7 @@ router.get(
   }
 );
 
+//get any user details
 router.get(
   "/:userId",
   auth,
@@ -190,33 +267,31 @@ router.get(
       const { userId } = req.params;
 
       // Find user and populate posts
-      const user = await User.findById(userId)
-        .select(
-          "username email bio profilePicture coverPicture followers following posts connectionRequests"
-        )
-        .populate({
-          path: "posts",
-          select: "content image likes comments createdAt author",
-          populate: [
-            {
-              path: "author",
-              select: "username profilePicture",
-            },
-            {
-              path: "likes",
-              select: "username profilePicture",
-            },
-            {
-              path: "comments.user",
-              select: "username profilePicture",
-            },
-          ],
-        });
+      const user = await User.findById(userId).populate({
+        path: "posts",
+        select: "content image likes comments createdAt author",
+        populate: [
+          {
+            path: "author",
+            select: "username profilePicture",
+          },
+          {
+            path: "likes",
+            select: "username profilePicture",
+          },
+          {
+            path: "comments.user",
+            select: "username profilePicture",
+          },
+        ],
+      });
 
       if (!user) {
         res.status(404).json({ success: false, message: "User not found" });
         return;
       }
+
+      console.log(user);
 
       // Find all posts related to the user
       const allPosts = await Post.find({
@@ -264,6 +339,7 @@ router.get(
   }
 );
 
+//profile edit
 router.put(
   "/profile/edit",
   auth,

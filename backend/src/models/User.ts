@@ -54,6 +54,18 @@ const UserSchema = new Schema<UserDocument>(
         ref: "User",
       },
     ],
+    sentFriendRequests: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
+    recievedFriendRequests: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
     createdAt: {
       type: Date,
       default: Date.now,

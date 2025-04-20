@@ -1,7 +1,12 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import axios from "axios";
+import { BASE_URL } from "../../utils/constants";
 
 interface UserProfile {
+  friends: any;
+  sentFriendRequests: any;
+  recievedFriendRequests: any;
+  pendingFriendRequests: any;
   _id: string;
   username: string;
   email: string;
@@ -85,7 +90,11 @@ export const {
 export const sendConnectionRequest =
   (userId: string) => async (dispatch: any) => {
     try {
-      await axios.post(`/api/v1/users/${userId}/connection-request`);
+      await axios.post(
+        `${BASE_URL}/users//friends/request/${userId}`,
+        {},
+        { withCredentials: true }
+      );
     } catch (error: any) {
       dispatch(
         setError(
@@ -98,8 +107,13 @@ export const sendConnectionRequest =
 export const acceptConnectionRequest =
   (userId: string) => async (dispatch: any) => {
     try {
-      await axios.post(`/api/v1/users/${userId}/accept-request`);
+      await axios.post(
+        `${BASE_URL}/users/friends/accept/${userId}`,
+        {},
+        { withCredentials: true }
+      );
     } catch (error: any) {
+      console.log(error);
       dispatch(
         setError(
           error.response?.data?.message || "Failed to accept connection request"
@@ -107,5 +121,40 @@ export const acceptConnectionRequest =
       );
     }
   };
+
+export const rejectConnectionRequest =
+  (userId: string) => async (dispatch: any) => {
+    try {
+      await axios.post(
+        `${BASE_URL}/users/friends/reject/${userId}`,
+        {},
+        { withCredentials: true }
+      );
+    } catch (error: any) {
+      console.log(error);
+      dispatch(
+        setError(
+          error.response?.data?.message || "Failed to accept connection request"
+        )
+      );
+    }
+  };
+
+export const unfriendUser = (userId: string) => async (dispatch: any) => {
+  try {
+    await axios.post(
+      `${BASE_URL}/users/friends/unfriend/${userId}`,
+      {},
+      { withCredentials: true }
+    );
+  } catch (error: any) {
+    console.log(error);
+    dispatch(
+      setError(
+        error.response?.data?.message || "Failed to accept connection request"
+      )
+    );
+  }
+};
 
 export default userProfileSlice.reducer;
