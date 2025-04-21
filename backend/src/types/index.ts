@@ -66,6 +66,7 @@ export interface ConversationDocument extends Document {
   groupName?: string;
   groupAdmin?: Types.ObjectId | UserDocument;
   lastMessage?: Types.ObjectId | MessageDocument;
+  messages?: Types.ObjectId[];
   createdAt: Date;
   updatedAt: Date;
 }

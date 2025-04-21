@@ -93,25 +93,38 @@ router.post(
 );
 
 router.get(
-  "/get/:id",
+  "/get/:friendId",
   auth,
   async (req: Request, res: Response): Promise<void> => {
     try {
+      // console.log("-------------------------------");
+      // console.log(req.userId);
+      // console.log(req.params.participants);
+      // console.log("-------------------------------");
+
+      // if (!req.params.participants.split("_").includes(req.userId)) {
+      //   res.status(400).json({ message: "Can't access this conversation" });
+      //   return;
+      // }
+
       const conversation = await Conversation.findOne({
-        _id: req.params.id,
-        participants: req.userId,
-      }).populate("participants", "username profilePicture");
+        participants: { $all: [req.userId, req.params.friendId] },
+      })
+        .populate("participants")
+        .populate({
+          path: "messages",
+        });
 
       if (!conversation) {
         res.status(404).json({ message: "Conversation not found" });
         return;
       }
 
-      const messages = await Message.find({ conversation: conversation._id })
-        .populate("sender", "username profilePicture")
-        .sort({ createdAt: 1 });
+      // const messages = await Message.find({ conversation: conversation._id })
+      //   .populate("sender", "username profilePicture")
+      //   .sort({ createdAt: 1 });
 
-      res.json({ conversation, messages });
+      res.json(conversation);
     } catch (error) {
       res
         .status(500)

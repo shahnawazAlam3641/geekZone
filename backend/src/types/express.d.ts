@@ -4,7 +4,7 @@ import { Server as SocketServer } from "socket.io";
 declare global {
   namespace Express {
     interface Request {
-      userId?: string;
+      userId: string;
       io?: SocketServer;
     }
   }

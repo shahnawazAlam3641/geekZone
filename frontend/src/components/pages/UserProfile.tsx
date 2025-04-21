@@ -105,6 +105,8 @@ const UserProfile = () => {
   const [actionError, setActionError] = useState<string | null>(null);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
 
+  const convId = [currentUser?._id, userId].sort().join("_");
+
   console.log(useParams());
 
   const fetchUserProfile = async (userId: string): Promise<void> => {
@@ -167,7 +169,7 @@ const UserProfile = () => {
   };
 
   const handleSendMessage = () => {
-    navigate(`/messages/${userId}`);
+    navigate(`/messages/${convId}`);
   };
 
   const handleConnectionRequest = async () => {

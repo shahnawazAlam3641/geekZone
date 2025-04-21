@@ -8,6 +8,7 @@ import Feed from "./components/layout/Feed";
 import UserProfile from "./components/pages/UserProfile";
 import Landing from "./components/pages/Landing";
 import MainLayout from "./components/layout/MainLayout";
+import Messages from "./components/pages/Messages";
 
 function App() {
   return (
@@ -58,6 +59,14 @@ function App() {
               <MainLayout>
                 <Feed />
               </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/messages/:conversationId?"
+          element={
+            <ProtectedRoute>
+              <Messages />
             </ProtectedRoute>
           }
         />
