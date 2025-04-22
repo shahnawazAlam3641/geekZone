@@ -11,7 +11,15 @@ import {
 import NavItem from "../common/NavItem";
 import { useAuth } from "../../hooks/useAuth";
 import { useNavigate } from "react-router";
-import { useAppSelector } from "../../store";
+import { useAppDispatch, useAppSelector } from "../../store";
+import {
+  addNotification,
+  setNotifications,
+} from "../../store/slices/notificatonSlice";
+import { BASE_URL } from "../../utils/constants";
+import axios from "axios";
+import { useEffect } from "react";
+import { socket } from "../../utils/socket";
 
 interface SidebarProps {
   onClose?: () => void;
@@ -20,12 +28,43 @@ interface SidebarProps {
 const Sidebar = ({ onClose }: SidebarProps) => {
   const { logoutUser } = useAuth();
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
   const { user } = useAppSelector((state) => state.auth);
+
+  const { unreadCount } = useAppSelector((state) => state.notification);
 
   const handleLogout = async () => {
     await logoutUser();
     navigate("/login");
   };
+
+  const fetchNotifications = async () => {
+    const response = await axios.get(`${BASE_URL}/notifications`, {
+      withCredentials: true,
+    });
+    dispatch(setNotifications(response.data.notifications));
+  };
+
+  useEffect(() => {
+    fetchNotifications();
+  }, []);
+
+  useEffect(() => {
+    if (user?._id) {
+      socket.auth = { userId: user._id };
+      socket.connect();
+    }
+
+    socket.on("new-notification", (notification) => {
+      console.log("got something");
+      dispatch(addNotification(notification));
+    });
+
+    return () => {
+      socket.off("new-notification");
+      socket.disconnect();
+    };
+  }, [user._id]);
 
   const handleNavigation = () => {
     if (onClose) {
@@ -58,7 +97,16 @@ const Sidebar = ({ onClose }: SidebarProps) => {
             to="/search"
           />
           <NavItem
-            icon={<Bell className="w-6 h-6" />}
+            icon={
+              <div className="relative">
+                <Bell className="w-6 h-6" />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 text-xs text-white px-1.5 bg-red-500 rounded-full">
+                    {unreadCount}
+                  </span>
+                )}
+              </div>
+            }
             label="Notifications"
             to="/notifications"
           />
@@ -72,17 +120,11 @@ const Sidebar = ({ onClose }: SidebarProps) => {
             label="Profile"
             to={`/profile/${user?._id}`}
           />
-          <NavItem
+          {/* <NavItem
             icon={<Settings className="w-6 h-6" />}
             label="Settings"
             to="/settings"
-          />
-          <NavItem
-            icon={<LogOut className="w-6 h-6" />}
-            label="Logout"
-            to="#"
-            onClick={handleLogout}
-          />
+          /> */}
         </nav>
         <NavItem
           icon={<LogOut className="w-6 h-6" />}

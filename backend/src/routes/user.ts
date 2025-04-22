@@ -6,6 +6,7 @@ import Post from "../models/Post";
 import { uploadImg } from "../middleware/uploadImg";
 import { uploadImage } from "../config/uploadImg";
 import bcrypt from "bcrypt";
+import Notification from "../models/Notificaton";
 
 const router = express.Router();
 
@@ -100,6 +101,12 @@ router.post(
         res.status(400).json({ success: false, message: "Already friends" });
         return;
       }
+
+      await Notification.create({
+        recipient: receiver._id,
+        sender: req.userId,
+        type: "friend_request",
+      });
 
       receiver.recievedFriendRequests.push(
         new mongoose.Types.ObjectId(req.userId)

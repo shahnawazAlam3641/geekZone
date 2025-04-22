@@ -12,8 +12,9 @@ import {
 import { useAppDispatch, useAppSelector } from "../../store";
 import { BASE_URL } from "../../utils/constants";
 import { format } from "date-fns";
+import { socket } from "../../utils/socket";
 
-const socket = io("http://localhost:3001");
+// const socket = io("http://localhost:3001");
 
 const Messages = () => {
   const { conversationId } = useParams();
@@ -77,6 +78,11 @@ const Messages = () => {
       if (!conversationId) return;
 
       fetchOldMessages();
+
+      if (user?._id) {
+        socket.auth = { userId: user._id };
+        socket.connect();
+      }
 
       socket.emit("join-room", { conversationId });
       socket.on("receive-message", (message: any) => {

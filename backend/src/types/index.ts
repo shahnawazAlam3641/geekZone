@@ -70,3 +70,13 @@ export interface ConversationDocument extends Document {
   createdAt: Date;
   updatedAt: Date;
 }
+
+export interface NotificationDocument extends Document {
+  recipient: Types.ObjectId;
+  sender: Types.ObjectId;
+  type: "like" | "comment" | "friend_request";
+  post?: Types.ObjectId;
+  isRead: boolean;
+  createdAt: Date;
+  updatedAt: Date;
+}

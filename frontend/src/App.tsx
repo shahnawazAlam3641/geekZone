@@ -10,6 +10,7 @@ import Landing from "./components/pages/Landing";
 import MainLayout from "./components/layout/MainLayout";
 import Messages from "./components/pages/Messages";
 import SearchPage from "./components/layout/SearchPage";
+import NotificationPage from "./components/layout/NotificationPage";
 
 function App() {
   return (
@@ -77,6 +78,16 @@ function App() {
             <ProtectedRoute>
               <MainLayout>
                 <SearchPage />
+              </MainLayout>
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/notifications"
+          element={
+            <ProtectedRoute>
+              <MainLayout>
+                <NotificationPage />
               </MainLayout>
             </ProtectedRoute>
           }

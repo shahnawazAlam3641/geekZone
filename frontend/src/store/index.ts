@@ -3,6 +3,7 @@ import authReducer from "./slices/authSlice";
 import postReducer from "./slices/postSlice";
 import userProfileReducer from "./slices/userProfileSlice";
 import chatReducer from "./slices/chatSlice";
+import notificationReducer from "./slices/notificatonSlice";
 import { TypedUseSelectorHook, useDispatch, useSelector } from "react-redux";
 
 export const store = configureStore({
@@ -11,6 +12,7 @@ export const store = configureStore({
     posts: postReducer,
     userProfile: userProfileReducer,
     chat: chatReducer,
+    notification: notificationReducer,
   },
 });
 

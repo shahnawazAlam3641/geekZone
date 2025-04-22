@@ -9,6 +9,7 @@ import postRoutes from "./routes/post";
 import userRoutes from "./routes/user";
 import conversationRoutes from "./routes/conversation";
 import messageRoutes from "./routes/message";
+import notificationRoutes from "./routes/notification";
 
 import { createServer } from "http";
 import { Server } from "socket.io";
@@ -54,14 +55,23 @@ app.use("/api/v1/posts", postRoutes);
 app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/conversation", conversationRoutes);
 app.use("/api/v1/message", messageRoutes);
+app.use("/api/v1/notifications", notificationRoutes);
 
 const onlineUsers = new Map<string, string>();
 
 io.on("connection", (socket) => {
   console.log("A user connected");
 
+  const userId = socket.handshake.auth.userId;
+  if (userId) {
+    socket.join(userId);
+    console.log(`User ${userId} connected and joined room ${userId}`);
+  }
+
   socket.on("user-online", (userId: string) => {
     onlineUsers.set(userId, socket.id);
+    socket.join(userId);
+
     console.log("Online Users:", [...onlineUsers.keys()]);
 
     // Notify all clients who is online

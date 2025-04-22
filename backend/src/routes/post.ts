@@ -4,6 +4,7 @@ import Post from "../models/Post";
 import mongoose from "mongoose";
 import { uploadImg } from "../middleware/uploadImg";
 import { uploadImage } from "../config/uploadImg";
+import Notification from "../models/Notificaton";
 
 const router = express.Router();
 
@@ -75,7 +76,7 @@ router.post(
     try {
       const post = await Post.findById(req.params.id);
       if (!post) {
-        res.status(404).json({ success: "flase", message: "Post not found" });
+        res.status(404).json({ success: false, message: "Post not found" });
         return;
       }
 
@@ -85,6 +86,20 @@ router.post(
       if (likeIndex === -1) {
         //like
         post.likes.push(new mongoose.Types.ObjectId(req.userId));
+
+        //create notification
+        const notification = await Notification.create({
+          recipient: post.author._id,
+          sender: req.userId,
+          type: "like",
+          post: post._id,
+        });
+
+        if (req.io) {
+          req.io
+            .to(post.author._id.toString())
+            .emit("new-notification", notification);
+        }
       } else {
         //unlike
         post.likes.splice(likeIndex, 1);
@@ -93,7 +108,7 @@ router.post(
       await post.save();
 
       res.json({
-        success: "true",
+        success: true,
         message: "operation done sucessfully",
         post,
       });
@@ -125,6 +140,19 @@ router.post(
         user: userId,
         content,
       });
+
+      const notification = await Notification.create({
+        recipient: post.author._id,
+        sender: req.userId,
+        type: "comment",
+        post: post._id,
+      });
+
+      if (req.io) {
+        req.io
+          .to(post.author._id.toString())
+          .emit("new-notification", notification);
+      }
 
       await post.save();
       await post.populate("comments.user", "username profilePicture");
