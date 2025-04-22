@@ -1,8 +1,7 @@
 // components/UserCard.tsx
-// import { User } from "@/types";
-// import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 
-import { useNavigate } from "react-router";
+import { useNavigate } from "react-router-dom";
+import { BadgeCheck } from "lucide-react";
 
 interface UserCardProps {
   user: User;
@@ -14,22 +13,26 @@ export default function UserCard({ user }: UserCardProps) {
   return (
     <div
       onClick={() => navigate(`/profile/${user._id}`)}
-      className="flex items-center gap-3 p-2 group rounded-lg hover:bg-muted transition cursor-pointer"
+      className="flex items-center gap-4 p-4  rounded-xl hover:bg-primary cursor-pointer transition-all shadow-sm hover:shadow-md card "
     >
-      <div className="w-10 h-10">
-        <img
-          className="rounded-full aspect-square object-cover"
-          src={
-            user.profilePicture ||
-            `https://api.dicebear.com/5.x/initials/svg?seed=${user?.username}`
-          }
-        />
-      </div>
-      <div>
-        <p className="font-medium text-sm group-hover:underline">
-          {user.username}
+      <img
+        src={
+          user.profilePicture ||
+          `https://api.dicebear.com/5.x/initials/svg?seed=${user?.username}`
+        }
+        alt={user.username}
+        className="w-12 h-12 rounded-full object-cover border border-border"
+      />
+      <div className="flex flex-col overflow-hidden ">
+        <div className="flex items-center gap-1">
+          <p className="font-semibold text-base overflow-hidden text-ellipsis">
+            {user.username}
+          </p>
+          {user.isVerified && <BadgeCheck className="w-4 h-4 text-blue-500" />}
+        </div>
+        <p className="text-sm text-muted-foreground overflow-hidden text-ellipsis">
+          {user.email}
         </p>
-        <p className="text-xs text-muted-foreground">{user.email}</p>
       </div>
     </div>
   );

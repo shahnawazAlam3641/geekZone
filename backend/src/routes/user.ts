@@ -15,11 +15,14 @@ router.get(
   auth,
   async (req: Request, res: Response): Promise<void> => {
     try {
-      const { query } = req.query;
+      const { query, page = 1, limit = 10 } = req.query;
+
       if (!query) {
         res.json({ users: [] });
         return;
       }
+
+      const skip = (Number(page) - 1) * Number(limit);
 
       const users = await User.find({
         $and: [
@@ -31,7 +34,11 @@ router.get(
             ],
           },
         ],
-      }).select("username email profilePicture isVerified");
+      })
+        .select("username email profilePicture isVerified")
+        .select("username email profilePicture isVerified")
+        .skip(skip)
+        .limit(Number(limit));
 
       res.json({ users });
     } catch (error) {

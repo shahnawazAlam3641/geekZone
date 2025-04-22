@@ -9,6 +9,7 @@ import UserProfile from "./components/pages/UserProfile";
 import Landing from "./components/pages/Landing";
 import MainLayout from "./components/layout/MainLayout";
 import Messages from "./components/pages/Messages";
+import SearchPage from "./components/layout/SearchPage";
 
 function App() {
   return (
@@ -67,6 +68,16 @@ function App() {
           element={
             <ProtectedRoute>
               <Messages />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/search"
+          element={
+            <ProtectedRoute>
+              <MainLayout>
+                <SearchPage />
+              </MainLayout>
             </ProtectedRoute>
           }
         />
