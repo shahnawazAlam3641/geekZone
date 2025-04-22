@@ -9,6 +9,7 @@ import bcrypt from "bcrypt";
 
 const router = express.Router();
 
+//search user
 router.get(
   "/search",
   auth,
@@ -41,6 +42,19 @@ router.get(
     }
   }
 );
+
+//get all users
+router.get("/all", auth, async (req: Request, res: Response) => {
+  try {
+    const users = await User.find({ _id: { $ne: req.userId } }).select(
+      "username email profilePicture isVerified"
+    );
+
+    res.status(200).json(users);
+  } catch (error) {
+    console.log(error);
+  }
+});
 
 //send friend request
 router.post(
