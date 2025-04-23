@@ -41,25 +41,32 @@ const Feed = () => {
   );
 
   useEffect(() => {
-    fetchPosts();
-  }, [page]);
+    let isMounted = true;
 
-  const fetchPosts = async () => {
-    if (!hasMore || loading) return;
-    try {
-      dispatch(setLoading(true));
-      dispatch(setError(null));
-      const response = await axios.get(`${BASE_URL}/posts?page=${page}`, {
-        withCredentials: true,
-      });
-      dispatch(appendPosts(response.data.posts));
-      dispatch(setHasMore(response.data.hasMore));
-    } catch (error) {
-      dispatch(setError("Error fetching posts"));
-    } finally {
-      dispatch(setLoading(false));
-    }
-  };
+    const fetchPosts = async () => {
+      if (!hasMore || loading || !isMounted) return;
+      try {
+        dispatch(setLoading(true));
+        dispatch(setError(null));
+        const response = await axios.get(`${BASE_URL}/posts?page=${page}`, {
+          withCredentials: true,
+        });
+        dispatch(appendPosts(response.data.posts));
+        dispatch(setHasMore(response.data.hasMore));
+      } catch (error) {
+        dispatch(setError("Error fetching posts"));
+        console.log(error);
+      } finally {
+        if (isMounted) dispatch(setLoading(false));
+      }
+    };
+
+    fetchPosts();
+
+    return () => {
+      isMounted = false;
+    };
+  }, [page]);
 
   const handleCreatePost = async (data: FieldValues) => {
     if (!data.content.trim()) return;
@@ -82,6 +89,7 @@ const Feed = () => {
       setShowModal(false);
     } catch (error) {
       dispatch(setError("Error creating post"));
+      console.log(error);
     }
   };
 

@@ -8,6 +8,7 @@ import Notification from "../models/Notificaton";
 
 const router = express.Router();
 
+//create post
 router.post(
   "/create",
   uploadImg.single("postPicture"),
@@ -42,6 +43,7 @@ router.post(
   }
 );
 
+//get all post
 router.get("/", auth, async (req: Request, res: Response): Promise<void> => {
   try {
     const page = parseInt(req.query.page as string) || 1;
@@ -69,6 +71,31 @@ router.get("/", auth, async (req: Request, res: Response): Promise<void> => {
   }
 });
 
+//get single post
+router.get(
+  "/:postId",
+  auth,
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const postId = req.params.postId;
+      const post = await Post.findById(postId)
+
+        .populate("author", "username profilePicture")
+        .populate("comments.user", "username profilePicture");
+
+      res.json({
+        success: true,
+        message: "Post Fetched Successfully",
+        post,
+      });
+      return;
+    } catch (error) {
+      res.status(500).json({ success: false, message: "Error fetching posts" });
+    }
+  }
+);
+
+//like post
 router.post(
   "/:id/like",
   auth,
@@ -122,6 +149,7 @@ router.post(
   }
 );
 
+//comment post
 router.post(
   "/:id/comments",
   auth,

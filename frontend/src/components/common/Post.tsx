@@ -11,7 +11,7 @@ import {
   Heart,
   MessageCircle,
   Send,
-  Share2,
+  X,
 } from "lucide-react";
 import { FieldValues, useForm } from "react-hook-form";
 import { setLoading, updatePost } from "../../store/slices/postSlice";
@@ -39,7 +39,15 @@ export interface PostSchema {
   image?: string;
 }
 
-const Post = ({ post }: { post: PostSchema }) => {
+const Post = ({
+  post,
+  isModal,
+  setSelectedPost,
+}: {
+  post: PostSchema | null;
+  isModal?: boolean;
+  setSelectedPost?: (post: PostSchema | null) => void;
+}) => {
   const { register, handleSubmit } = useForm();
   const [showComments, setShowComments] = useState(false);
   const dispatch = useAppDispatch();
@@ -49,7 +57,7 @@ const Post = ({ post }: { post: PostSchema }) => {
   const handleLike = async () => {
     try {
       const response = await axios.post(
-        `${BASE_URL}/posts/${post._id}/like`,
+        `${BASE_URL}/posts/${post?._id}/like`,
         {},
         { withCredentials: true }
       );
@@ -65,7 +73,7 @@ const Post = ({ post }: { post: PostSchema }) => {
     dispatch(setLoading(true));
     try {
       const response = await axios.post(
-        `${BASE_URL}/posts/${post._id}/comments`,
+        `${BASE_URL}/posts/${post?._id}/comments`,
         { content: data?.newComment.trim() },
         { withCredentials: true }
       );
@@ -85,91 +93,105 @@ const Post = ({ post }: { post: PostSchema }) => {
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, y: -20 }}
-      className="bg-background-lighter rounded-xl p-4 sm:p-6 border border-gray-800"
+      className={`bg-background-lighter rounded-xl  p-4 sm:p-6 border border-gray-800 ${
+        isModal &&
+        " w-[800px] max-w-[90vw] max-h-[85vh] overflow-y-auto md:gap-8"
+      }`}
     >
-      {/* Post Header */}
-      <div className="flex items-center gap-3 mb-4">
-        <img
-          src={
-            post?.author?.profilePicture ||
-            "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop"
-          }
-          alt={post?.author?.username}
-          className="w-10 h-10 rounded-full object-cover"
-        />
-        <div>
-          <Link to={`/profile/${post?.author?._id}`}>
-            <h3 className="font-semibold hover:underline">
-              {post?.author?.username}
-            </h3>
-          </Link>
-          <p className="text-sm text-gray-400">
-            {formatDistanceToNow(new Date(post?.createdAt), {
-              addSuffix: true,
-            })}
-          </p>
-        </div>
-      </div>
-
-      {/* Post Content */}
-      {post?.content && (
-        <p className="text-gray-200 mb-4 whitespace-pre-wrap">
-          {post?.content}
-        </p>
-      )}
-
-      {/* Post Image - if not undefined*/}
-      {
-        post?.image && (
-          <img
-            src={post?.image}
-            alt="Post content"
-            className="w-full h-64 object-cover rounded-lg mb-4"
-            onError={(e) => {
-              const target = e.target as HTMLImageElement;
-              target.src = "/default-post.jpg";
+      <div>
+        {/* Post Header */}
+        <div className="flex justify-between gap-3 mb-4">
+          <div className="flex items-center gap-3 mb-4">
+            <img
+              src={
+                post?.author?.profilePicture ||
+                "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop"
+              }
+              alt={post?.author?.username}
+              className="w-10 h-10 rounded-full object-cover"
+            />
+            <div>
+              <Link to={`/profile/${post?.author?._id}`}>
+                <h3 className="font-semibold hover:underline">
+                  {post?.author?.username}
+                </h3>
+              </Link>
+              <p className="text-sm text-gray-400">
+                {formatDistanceToNow(new Date(post?.createdAt || ""), {
+                  addSuffix: true,
+                })}
+              </p>
+            </div>
+          </div>
+          <X
+            onClick={() => {
+              console.log("run X");
+              console.log(setSelectedPost);
+              if (setSelectedPost) {
+                console.log("run if");
+                setSelectedPost(null);
+              }
             }}
+            className="w-8 h-8 hover:text-primary cursor-pointer transition-colors duration-200 text-white"
           />
-        )
-        // (
-        //   <div className="w-full h-32 bg-gray-800/50 rounded-lg mb-4 flex items-center justify-center">
-        //     <p className="text-gray-400 text-center px-4">
-        //       {post?.content || "No content available"}
-        //     </p>
-        //   </div>
-        // )
-      }
+        </div>
 
-      {/* Post Actions */}
-      <div className="flex flex-wrap items-center gap-4 sm:gap-6 text-gray-400">
-        <button
-          onClick={handleLike}
-          className={`flex items-center gap-2 transition-colors ${
-            isLiked ? "text-primary" : "hover:text-primary"
-          }`}
-        >
-          <Heart className={`w-5 h-5 ${isLiked ? "fill-current" : ""}`} />
-          <span>{post?.likes?.length}</span>
-        </button>
-        <button
-          onClick={() => setShowComments(!showComments)}
-          className="flex items-center gap-2 hover:text-primary transition-colors"
-        >
-          <MessageCircle className="w-5 h-5" />
-          <span>{post?.comments?.length}</span>
-          {showComments ? (
-            <ChevronUp className="w-4 h-4" />
-          ) : (
-            <ChevronDown className="w-4 h-4" />
-          )}
-        </button>
-        <button className="flex items-center gap-2 hover:text-primary transition-colors">
+        {/* Post Content */}
+        {post?.content && (
+          <p className="text-gray-200 mb-4 whitespace-pre-wrap">
+            {post?.content}
+          </p>
+        )}
+
+        {/* Post Image - if not undefined*/}
+        {
+          post?.image && (
+            <img
+              src={post?.image}
+              alt="Post content"
+              className="w-full h-64 object-cover rounded-lg mb-4"
+            />
+          )
+          // (
+          //   <div className="w-full h-32 bg-gray-800/50 rounded-lg mb-4 flex items-center justify-center">
+          //     <p className="text-gray-400 text-center px-4">
+          //       {post?.content || "No content available"}
+          //     </p>
+          //   </div>
+          // )
+        }
+
+        {/* Post Actions */}
+        <div className="flex flex-wrap items-center gap-4 sm:gap-6 text-gray-400">
+          <button
+            onClick={handleLike}
+            className={`flex items-center gap-2 transition-colors ${
+              isLiked ? "text-primary" : "hover:text-primary"
+            }`}
+          >
+            <Heart className={`w-5 h-5 ${isLiked ? "fill-current" : ""}`} />
+            <span>{post?.likes?.length}</span>
+          </button>
+          <button
+            onClick={() => setShowComments(!showComments)}
+            className="flex items-center gap-2 hover:text-primary transition-colors"
+          >
+            <MessageCircle className="w-5 h-5" />
+            <span>{post?.comments?.length}</span>
+            {showComments ? (
+              <ChevronUp className="w-4 h-4" />
+            ) : (
+              <ChevronDown className="w-4 h-4" />
+            )}
+          </button>
+          {/* <button className="flex items-center gap-2 hover:text-primary transition-colors">
           <Share2 className="w-5 h-5" />
           <span className="hidden sm:inline">Share</span>
-        </button>
-        <button className="ml-auto hover:text-primary transition-colors">
-          <Bookmark className="w-5 h-5" />
-        </button>
+        </button> */}
+          <button className="ml-auto hover:text-primary transition-colors">
+            <Bookmark className="w-5 h-5" />
+          </button>
+        </div>
       </div>
 
       {/* Comments Section */}
@@ -179,7 +201,9 @@ const Post = ({ post }: { post: PostSchema }) => {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: "auto" }}
             exit={{ opacity: 0, height: 0 }}
-            className="mt-4 pt-4 border-t border-gray-800"
+            className={`mt-4 pt-4 border-t border-gray-800 ${
+              isModal && "min-w-[50%] flex flex-col-reverse gap-2 "
+            }`}
           >
             {/* Add Comment */}
             <form
@@ -203,7 +227,7 @@ const Post = ({ post }: { post: PostSchema }) => {
             </form>
 
             {/* Comments List */}
-            <div className="space-y-4">
+            <div className="space-y-4 max-h-[40vh] overflow-y-auto">
               {post.comments.map((comment) => (
                 <motion.div
                   key={comment._id}

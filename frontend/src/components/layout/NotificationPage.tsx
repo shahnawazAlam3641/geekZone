@@ -1,16 +1,13 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { BASE_URL } from "../../utils/constants";
 import { useAppDispatch, useAppSelector } from "../../store";
-import {
-  markAllAsRead,
-  setNotifications,
-} from "../../store/slices/notificatonSlice";
 import { Bell } from "lucide-react";
 import { format } from "date-fns";
 import { motion } from "framer-motion";
+import Post, { PostSchema } from "../common/Post";
 
 export interface Notification {
   _id: string;
@@ -21,7 +18,7 @@ export interface Notification {
     profilePicture?: string;
   };
   type: "like" | "comment" | "friend_request";
-  post?: {
+  post: {
     _id: string;
     content: string;
   };
@@ -30,10 +27,9 @@ export interface Notification {
 }
 
 export default function NotificationPage() {
-  const dispatch = useAppDispatch();
-  const { notifications, unreadCount } = useAppSelector(
-    (state) => state.notification
-  );
+  const { notifications } = useAppSelector((state) => state.notification);
+  const { posts } = useAppSelector((state) => state.posts);
+  const [selectedPost, setSelectedPost] = useState<PostSchema | null>(null);
 
   const navigate = useNavigate();
 
@@ -49,6 +45,18 @@ export default function NotificationPage() {
   //       withCredentials: true,
   //     });
 
+  const fetchPost = async (postId: string) => {
+    try {
+      const response = await axios.get(`${BASE_URL}/posts/${postId}`, {
+        withCredentials: true,
+      });
+      setSelectedPost(response.data.post);
+      console.log(response.data.post);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const markAllNotificationAsRead = async () => {
     try {
       const response = await axios.put(
@@ -56,6 +64,8 @@ export default function NotificationPage() {
         {},
         { withCredentials: true }
       );
+
+      console.log(response);
     } catch (error) {
       console.log(error);
     }
@@ -81,7 +91,20 @@ export default function NotificationPage() {
   };
 
   return (
-    <div className="max-w-2xl mx-auto p-4">
+    <div className="max-w-2xl mx-auto p-4 relative">
+      {selectedPost && (
+        <>
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-50">
+            <Post
+              post={selectedPost}
+              isModal={true}
+              setSelectedPost={setSelectedPost}
+            />
+          </div>
+          <div className="top-0 bottom-0 right-0 left-0 absolute bg-[#000000bf] z-40"></div>
+        </>
+      )}
+
       <div className="flex items-center justify-between mb-6">
         <h1 className="text-3xl font-bold text-primary flex items-center gap-2">
           <Bell className="w-7 h-7 text-blue-600" />
@@ -168,7 +191,7 @@ export default function NotificationPage() {
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                       onClick={() => {
-                        console.log("pending");
+                        fetchPost(n.post?._id);
                       }}
                       className=" bg-primary p-2 rounded-md cursor-pointer"
                     >
