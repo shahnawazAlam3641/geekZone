@@ -123,17 +123,19 @@ const Post = ({
               </p>
             </div>
           </div>
-          <X
-            onClick={() => {
-              console.log("run X");
-              console.log(setSelectedPost);
-              if (setSelectedPost) {
-                console.log("run if");
-                setSelectedPost(null);
-              }
-            }}
-            className="w-8 h-8 hover:text-primary cursor-pointer transition-colors duration-200 text-white"
-          />
+          {isModal && (
+            <X
+              onClick={() => {
+                console.log("run X");
+                console.log(setSelectedPost);
+                if (setSelectedPost) {
+                  console.log("run if");
+                  setSelectedPost(null);
+                }
+              }}
+              className="w-8 h-8 hover:text-primary cursor-pointer transition-colors duration-200 text-white"
+            />
+          )}
         </div>
 
         {/* Post Content */}

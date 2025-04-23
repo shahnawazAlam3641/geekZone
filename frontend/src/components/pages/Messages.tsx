@@ -3,7 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { io } from "socket.io-client";
 import axios from "axios";
 import { motion } from "framer-motion";
-import { SendHorizonal } from "lucide-react";
+import { ChevronLeft, SendHorizonal } from "lucide-react";
 import {
   addMessage,
   setMessages,
@@ -13,6 +13,7 @@ import { useAppDispatch, useAppSelector } from "../../store";
 import { BASE_URL } from "../../utils/constants";
 import { format } from "date-fns";
 import { socket } from "../../utils/socket";
+import MessageContent from "../common/MessageContent";
 
 // const socket = io("http://localhost:3001");
 
@@ -30,6 +31,7 @@ const Messages = () => {
 
   const messageEndRef = useRef<HTMLDivElement>(null);
   const typingTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [showFriends, setShowFriends] = useState(true);
   const loggedInUserId = user?._id;
 
   const fetchOldMessages = async () => {
@@ -165,103 +167,163 @@ const Messages = () => {
   return (
     <div className="flex h-screen w-full overflow-hidden">
       {/* Friends List */}
-      <div className="w-1/3 bg-[#1f1f1f] text-white p-4 overflow-y-auto">
-        <h2 className="text-xl font-semibold mb-4">Messages</h2>
-        {friends.map((friend) => {
-          const convId = [loggedInUserId, friend._id].sort().join("_");
-          return (
-            <div
-              key={friend._id}
-              onClick={() => {
-                console.log(friend);
-                setSelectedFriend(friend);
-                navigate(`/messages/${convId}`);
-              }}
-              className="flex items-center space-x-3 p-3 rounded-lg cursor-pointer hover:bg-[#2a2a2a]"
-            >
-              <img
-                src={friend.profilePicture || "https://i.pravatar.cc/150"}
-                alt={friend.name}
-                className="w-10 h-10 rounded-full"
-              />
-              <div>
-                <p className="font-medium">{friend.username}</p>
-                <p className="text-xs text-gray-400">
-                  {isOnline[friend._id] ? "Online" : "Offline"}
-                </p>
+      <div
+        className={`${
+          showFriends ? "block" : "hidden"
+        } md:block md:w-1/3 bg-[#1f1f1f] text-white p-4 w-full overflow-y-auto`}
+      >
+        <div className="flex gap-3 items-center mb-4">
+          <button
+            onClick={() => {
+              setShowFriends(true);
+              setSelectedFriend(null);
+              navigate("/feed");
+            }}
+            className=" bg-[#333] p-1 rounded hover:bg-primary cursor-pointer transition-colors duration-200"
+          >
+            <ChevronLeft className="w-5 h-5" />
+          </button>
+          <h2 className="text-xl font-semibold ">Messages</h2>
+        </div>
+        {friends.length === 0 ? (
+          <p className="text-gray-400 text-sm">You have no friends yet.</p>
+        ) : (
+          friends.map((friend) => {
+            const convId = [loggedInUserId, friend._id].sort().join("_");
+            return (
+              <div
+                key={friend._id}
+                onClick={() => {
+                  setSelectedFriend(friend);
+                  navigate(`/messages/${convId}`);
+                  if (window.innerWidth < 768) setShowFriends(false); // collapse list on mobile
+                }}
+                className={`flex items-center space-x-3 p-3 rounded-lg cursor-pointer 
+                  ${
+                    selectedFriend?._id === friend._id
+                      ? "bg-primary-dark"
+                      : "hover:bg-[#2a2a2a]"
+                  }`}
+              >
+                <img
+                  src={
+                    friend.profilePicture ||
+                    `https://api.dicebear.com/5.x/initials/svg?seed=${friend.username}`
+                  }
+                  alt={friend.name}
+                  className="w-10 h-10 rounded-full object-cover"
+                />
+                <div>
+                  <p className="font-medium">{friend.username}</p>
+                  <p
+                    className={` ${
+                      isOnline[friend._id] && "text-green-400"
+                    } text-xs text-gray-400`}
+                  >
+                    {isOnline[friend._id] ? "Online" : "Offline"}
+                  </p>
+                </div>
               </div>
-            </div>
-          );
-        })}
+            );
+          })
+        )}
       </div>
 
       {/* Chat Section */}
-      {selectedFriend && (
-        <div className="w-2/3 flex flex-col bg-[#141414] text-white relative">
-          <div className="p-4 border-b border-[#333] flex items-center gap-3">
-            <img
-              alt="img"
-              src={selectedFriend.profilePicture || "https://i.pravatar.cc/150"}
-              className="w-10 h-10 rounded-full"
-            />
-            <div>
-              <span className="font-semibold">{selectedFriend.username}</span>
-
-              {typingUser === selectedFriend._id && (
-                <p className="text-sm text-gray-400 animate-pulse">typing...</p>
-              )}
-            </div>
-          </div>
-
-          <div className="flex-1  overflow-y-auto p-4 space-y-2">
-            {messages.map((msg: any, i: number) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ duration: 0.2 }}
-                className={`max-w-xs px-4 py-2  rounded-lg ${
-                  msg.sender === loggedInUserId
-                    ? "bg-primary ml-auto"
-                    : "bg-[#2c2c2c]"
-                }`}
+      <div className="flex-1 flex flex-col bg-[#141414] text-white relative">
+        {selectedFriend ? (
+          <>
+            <div className="p-4 border-b border-[#333] flex items-center gap-3">
+              {/* Back Button on mobile */}
+              <button
+                onClick={() => {
+                  setShowFriends(true);
+                  setSelectedFriend(null);
+                  navigate("/messages");
+                }}
+                className="md:hidden bg-[#333] p-1 rounded cursor-pointer hover:bg-primary transition-colors duration-200"
               >
-                <p className="overflow-x-auto break-all">{msg.content}</p>
-                <div className="text-[10px] text-gray-300 text-right">
-                  {format(msg.createdAt, "MMM d, yyyy h:mm a")}
-                  {/* {msg.senderId === loggedInUserId &&
-                    (msg.status === "seen" ? "✓✓" : "✓")} */}
+                <ChevronLeft className="w-5 h-5" />
+              </button>
+
+              <div
+                onClick={() => navigate(`/profile/${selectedFriend._id}`)}
+                className="flex gap-3 items-center h-5 cursor-pointer group"
+              >
+                <img
+                  alt="img"
+                  src={
+                    selectedFriend.profilePicture ||
+                    `https://api.dicebear.com/5.x/initials/svg?seed=${selectedFriend.username}`
+                  }
+                  className="w-10 h-10 rounded-full object-cover"
+                />
+                <div>
+                  <span className="font-semibold group-hover:underline">
+                    {selectedFriend.username}
+                  </span>
+                  {typingUser === selectedFriend._id && (
+                    <p className="text-sm text-gray-400 animate-pulse">
+                      typing...
+                    </p>
+                  )}
                 </div>
-              </motion.div>
-            ))}
-            <div ref={messageEndRef}></div>
-          </div>
-          <motion.form
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.2 }}
-            onSubmit={(e) => {
-              e.preventDefault();
-              sendMessage();
-            }}
-            className="flex items-center gap-2 border-t border-[#333] p-3"
-          >
-            <input
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onInput={handleTyping}
-              placeholder="Type a message..."
-              className="flex-1 p-2 bg-[#222] rounded-lg outline-none text-white"
-            />
-            <button
-              className="bg-primary-dark p-1.5 rounded-lg"
-              onClick={sendMessage}
+              </div>
+            </div>
+
+            <div className="flex-1 relative overflow-y-auto p-4 space-y-2">
+              {messages.map((msg: any, i: number) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className={`relative w-fit max-w-xs px-4 py-2 rounded-lg break-words ${
+                    msg.sender === loggedInUserId
+                      ? "bg-primary ml-auto before:content-[''] before:absolute before:top-2 before:right-[-15px] before:border-8 before:border-transparent before:border-l-primary"
+                      : "bg-[#2c2c2c] before:content-[''] before:absolute before:top-2 before:left-[-15px] before:border-8 before:border-transparent before:border-r-[#2c2c2c]"
+                  }`}
+                >
+                  <MessageContent content={msg.content} />
+                  <div className="text-[10px] text-gray-300 text-right">
+                    {format(msg.createdAt, "MMM d, yyyy h:mm a")}
+                  </div>
+                </motion.div>
+              ))}
+              <div ref={messageEndRef}></div>
+            </div>
+
+            <motion.form
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.2 }}
+              onSubmit={(e) => {
+                e.preventDefault();
+                sendMessage();
+              }}
+              className="flex items-center gap-2 border-t border-[#333] p-3"
             >
-              <SendHorizonal className="" />
-            </button>
-          </motion.form>
-        </div>
-      )}
+              <input
+                value={input}
+                onChange={(e) => setInput(e.target.value)}
+                onInput={handleTyping}
+                placeholder="Type a message..."
+                className="flex-1 p-2 bg-[#222] rounded-lg outline-none text-white"
+              />
+              <button
+                className="bg-primary-dark p-1.5 rounded-lg"
+                onClick={sendMessage}
+              >
+                <SendHorizonal />
+              </button>
+            </motion.form>
+          </>
+        ) : (
+          <div className="flex-1 md:flex hidden items-center justify-center  text-gray-400 text-lg">
+            <p>Select a conversation to start chatting 💬</p>
+          </div>
+        )}
+      </div>
     </div>
   );
 };
