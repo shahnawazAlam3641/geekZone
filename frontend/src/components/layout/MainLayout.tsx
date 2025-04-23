@@ -50,7 +50,9 @@ export default function MainLayout({ children }: MainLayoutProps) {
       {/* Mobile menu toggle */}
       <button
         onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-        className="lg:hidden fixed top-4 left-4 z-50 p-2 rounded-lg bg-background-lighter border border-gray-800 hover:bg-background transition-colors"
+        className={`${
+          isSidebarOpen && "left-50"
+        } fixed top-4 left-4 z-50 p-2 cursor-pointer rounded-lg bg-background-lighter border border-gray-800 hover:bg-background transition-colors`}
       >
         <Menu className="w-6 h-6" />
       </button>
