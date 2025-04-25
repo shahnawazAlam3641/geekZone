@@ -71,25 +71,29 @@ router.post(
   async (req: Request, res: Response): Promise<void> => {
     try {
       const { userId } = req.params;
-      const receiver = await User.findById(userId);
-      const sender = await User.findById(req.userId);
+      const friendUser = await User.findById(userId).select("-password");
 
-      if (!receiver || !sender) {
+      console.log("first----------->>>>>>>>>>", friendUser);
+      const currentUser = await User.findById(req.userId).select("-password");
+
+      if (!friendUser || !currentUser) {
         res.status(404).json({ success: false, message: "User not found" });
         return;
       }
 
       if (
-        receiver.recievedFriendRequests.includes(
+        friendUser.recievedFriendRequests.includes(
           new mongoose.Types.ObjectId(req.userId)
         ) ||
-        receiver.sentFriendRequests.includes(
+        friendUser.sentFriendRequests.includes(
           new mongoose.Types.ObjectId(req.userId)
         ) ||
-        sender.recievedFriendRequests.includes(
+        currentUser.recievedFriendRequests.includes(
           new mongoose.Types.ObjectId(userId)
         ) ||
-        sender.sentFriendRequests.includes(new mongoose.Types.ObjectId(userId))
+        currentUser.sentFriendRequests.includes(
+          new mongoose.Types.ObjectId(userId)
+        )
       ) {
         res
           .status(400)
@@ -97,26 +101,66 @@ router.post(
         return;
       }
 
-      if (receiver.friends.includes(new mongoose.Types.ObjectId(req.userId))) {
+      if (
+        friendUser.friends.includes(new mongoose.Types.ObjectId(req.userId))
+      ) {
         res.status(400).json({ success: false, message: "Already friends" });
         return;
       }
 
       await Notification.create({
-        recipient: receiver._id,
+        recipient: friendUser._id,
         sender: req.userId,
         type: "friend_request",
       });
 
-      receiver.recievedFriendRequests.push(
+      friendUser.recievedFriendRequests.push(
         new mongoose.Types.ObjectId(req.userId)
       );
-      sender.sentFriendRequests.push(new mongoose.Types.ObjectId(userId));
+      currentUser.sentFriendRequests.push(new mongoose.Types.ObjectId(userId));
 
-      await receiver.save();
-      await sender.save();
+      await friendUser.save();
+      await currentUser.save();
 
-      res.json({ message: "Friend request sent" });
+      // Find all posts related to the user
+      const allPosts = await Post.find({
+        $or: [{ author: userId }, { likes: userId }],
+      })
+        .select("content image likes comments createdAt author")
+        .populate("author", "username profilePicture")
+        .populate("likes", "username profilePicture")
+        .populate("comments.user", "username profilePicture");
+
+      // Filter posts by author
+      const userPosts = allPosts.filter(
+        (post) => post.author._id.toString() === userId
+      );
+
+      // Filter posts by likes
+      const likedPosts = allPosts.filter((post) => {
+        if (!post.likes) return false;
+        return post.likes.some((like) => like._id.toString() === userId);
+      });
+
+      // Filter saved posts
+      const savedPosts = allPosts.filter((post) => {
+        if (!post.savedBy) return false;
+        return post.savedBy.some((saved) => saved._id.toString() === userId);
+      });
+
+      // Convert user to plain object
+      // const userObject = user.toObject();
+
+      res.json({
+        message: "Friend request sent",
+        otherUser: {
+          ...friendUser.toObject(),
+          posts: userPosts,
+          likedPosts,
+          savedPosts,
+        },
+        currentUser: currentUser,
+      });
     } catch (error) {
       res
         .status(500)
@@ -133,16 +177,16 @@ router.post(
   async (req: Request, res: Response): Promise<void> => {
     try {
       const { userId } = req.params;
-      const receiver = await User.findById(req.userId);
-      const sender = await User.findById(userId);
+      const currentUser = await User.findById(req.userId).select("-password");
+      const friendUser = await User.findById(userId).select("-password");
 
-      if (!receiver || !sender) {
+      if (!currentUser || !friendUser) {
         res.status(404).json({ success: false, message: "User not found" });
         return;
       }
 
       if (
-        !receiver.recievedFriendRequests.includes(
+        !currentUser.recievedFriendRequests.includes(
           new mongoose.Types.ObjectId(userId)
         )
       ) {
@@ -152,21 +196,66 @@ router.post(
         return;
       }
 
-      receiver.recievedFriendRequests = receiver.recievedFriendRequests.filter(
-        (id) => id.toString() !== userId
-      );
+      currentUser.recievedFriendRequests =
+        currentUser.recievedFriendRequests.filter(
+          (id) => id.toString() !== userId
+        );
 
-      sender.sentFriendRequests = receiver.sentFriendRequests.filter(
+      friendUser.sentFriendRequests = currentUser.sentFriendRequests.filter(
         (id) => id.toString() !== req?.userId
       );
 
-      receiver.friends.push(new mongoose.Types.ObjectId(userId));
-      sender.friends.push(new mongoose.Types.ObjectId(req.userId));
+      currentUser.friends.push(new mongoose.Types.ObjectId(userId));
+      friendUser.friends.push(new mongoose.Types.ObjectId(req.userId));
 
-      await receiver.save();
-      await sender.save();
+      await currentUser.save();
+      await friendUser.save();
 
-      res.json({ message: "Friend request accepted" });
+      // Find all posts related to the user
+      const allPosts = await Post.find({
+        $or: [{ author: userId }, { likes: userId }],
+      })
+        .select("content image likes comments createdAt author")
+        .populate("author", "username profilePicture")
+        .populate("likes", "username profilePicture")
+        .populate("comments.user", "username profilePicture");
+
+      // Filter posts by author
+      const userPosts = allPosts.filter(
+        (post) => post.author._id.toString() === userId
+      );
+
+      // Filter posts by likes
+      const likedPosts = allPosts.filter((post) => {
+        if (!post.likes) return false;
+        return post.likes.some((like) => like._id.toString() === userId);
+      });
+
+      // Filter saved posts
+      const savedPosts = allPosts.filter((post) => {
+        if (!post.savedBy) return false;
+        return post.savedBy.some((saved) => saved._id.toString() === userId);
+      });
+
+      // Convert user to plain object
+      // const userObject = user.toObject();
+
+      res.json({
+        message: "Friend request sent",
+        otherUser: {
+          ...friendUser.toObject(),
+          posts: userPosts,
+          likedPosts,
+          savedPosts,
+        },
+        currentUser: currentUser,
+      });
+
+      // res.json({
+      //   message: "Friend request accepted",
+      //   currentUser: currentUser,
+      //   otherUser: friendUser,
+      // });
     } catch (error) {
       res
         .status(500)
@@ -182,16 +271,16 @@ router.post(
   async (req: Request, res: Response): Promise<void> => {
     try {
       const { userId } = req.params;
-      const receiver = await User.findById(req.userId);
-      const sender = await User.findById(userId);
+      const currentUser = await User.findById(req.userId).select("-password");
+      const friendUser = await User.findById(userId).select("-password");
 
-      if (!receiver || !sender) {
+      if (!currentUser || !friendUser) {
         res.status(404).json({ success: false, message: "User not found" });
         return;
       }
 
       if (
-        !receiver.recievedFriendRequests.includes(
+        !currentUser.recievedFriendRequests.includes(
           new mongoose.Types.ObjectId(userId)
         )
       ) {
@@ -201,18 +290,57 @@ router.post(
         return;
       }
 
-      receiver.recievedFriendRequests = receiver.recievedFriendRequests.filter(
-        (id) => id.toString() !== userId
-      );
+      currentUser.recievedFriendRequests =
+        currentUser.recievedFriendRequests.filter(
+          (id) => id.toString() !== userId
+        );
 
-      sender.sentFriendRequests = receiver.sentFriendRequests.filter(
+      friendUser.sentFriendRequests = currentUser.sentFriendRequests.filter(
         (id) => id.toString() !== req?.userId
       );
 
-      await receiver.save();
-      await sender.save();
+      await currentUser.save();
+      await friendUser.save();
 
-      res.json({ message: "Friend request rejected" });
+      // Find all posts related to the user
+      const allPosts = await Post.find({
+        $or: [{ author: userId }, { likes: userId }],
+      })
+        .select("content image likes comments createdAt author")
+        .populate("author", "username profilePicture")
+        .populate("likes", "username profilePicture")
+        .populate("comments.user", "username profilePicture");
+
+      // Filter posts by author
+      const userPosts = allPosts.filter(
+        (post) => post.author._id.toString() === userId
+      );
+
+      // Filter posts by likes
+      const likedPosts = allPosts.filter((post) => {
+        if (!post.likes) return false;
+        return post.likes.some((like) => like._id.toString() === userId);
+      });
+
+      // Filter saved posts
+      const savedPosts = allPosts.filter((post) => {
+        if (!post.savedBy) return false;
+        return post.savedBy.some((saved) => saved._id.toString() === userId);
+      });
+
+      // Convert user to plain object
+      // const userObject = user.toObject();
+
+      res.json({
+        message: "Friend request sent",
+        otherUser: {
+          ...friendUser.toObject(),
+          posts: userPosts,
+          likedPosts,
+          savedPosts,
+        },
+        currentUser: currentUser,
+      });
     } catch (error) {
       res
         .status(500)
@@ -228,8 +356,8 @@ router.post(
   async (req: Request, res: Response): Promise<void> => {
     try {
       const { userId } = req.params;
-      const currentUser = await User.findById(req.userId);
-      const friendUser = await User.findById(userId);
+      const currentUser = await User.findById(req.userId).select("-password");
+      const friendUser = await User.findById(userId).select("-password");
 
       if (!currentUser || !friendUser) {
         res.status(404).json({ success: false, message: "User not found" });
@@ -248,7 +376,52 @@ router.post(
       await currentUser.save();
       await friendUser.save();
 
-      res.json({ success: true, message: "Unfriended successfully" });
+      // Find all posts related to the user
+      const allPosts = await Post.find({
+        $or: [{ author: userId }, { likes: userId }],
+      })
+        .select("content image likes comments createdAt author")
+        .populate("author", "username profilePicture")
+        .populate("likes", "username profilePicture")
+        .populate("comments.user", "username profilePicture");
+
+      // Filter posts by author
+      const userPosts = allPosts.filter(
+        (post) => post.author._id.toString() === userId
+      );
+
+      // Filter posts by likes
+      const likedPosts = allPosts.filter((post) => {
+        if (!post.likes) return false;
+        return post.likes.some((like) => like._id.toString() === userId);
+      });
+
+      // Filter saved posts
+      const savedPosts = allPosts.filter((post) => {
+        if (!post.savedBy) return false;
+        return post.savedBy.some((saved) => saved._id.toString() === userId);
+      });
+
+      // Convert user to plain object
+      // const userObject = user.toObject();
+
+      res.json({
+        message: "Friend request sent",
+        otherUser: {
+          ...friendUser.toObject(),
+          posts: userPosts,
+          likedPosts,
+          savedPosts,
+        },
+        currentUser: currentUser,
+      });
+
+      // res.json({
+      //   success: true,
+      //   message: "Unfriended successfully",
+      //   currentUser,
+      //   otherUser: friendUser,
+      // });
     } catch (error) {
       console.error("Error unfriending user:", error);
       res.status(500).json({
@@ -295,24 +468,7 @@ router.get(
       const { userId } = req.params;
 
       // Find user and populate posts
-      const user = await User.findById(userId).populate({
-        path: "posts",
-        select: "content image likes comments createdAt author",
-        populate: [
-          {
-            path: "author",
-            select: "username profilePicture",
-          },
-          {
-            path: "likes",
-            select: "username profilePicture",
-          },
-          {
-            path: "comments.user",
-            select: "username profilePicture",
-          },
-        ],
-      });
+      const user = await User.findById(userId).select("-password");
 
       if (!user) {
         res.status(404).json({ success: false, message: "User not found" });

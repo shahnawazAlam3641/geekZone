@@ -6,6 +6,10 @@ interface User {
   email: string;
   profilePicture: string;
   isVerified: boolean;
+  bio: string;
+  friends: string[];
+  sentFriendRequests: string[];
+  recievedFriendRequests: string[];
 }
 
 interface AuthState {
@@ -45,9 +49,38 @@ const authSlice = createSlice({
       state.error = null;
       state.loading = false;
     },
+    addCurrentUserFriendRequest: (state, action) => {
+      state?.user?.sentFriendRequests.push(action.payload);
+    },
+    removeCurrentUserFriend: (state, action) => {
+      const indexOfFriend = state.user?.friends.findIndex((friend) => {
+        return friend == action.payload;
+      });
+      if (indexOfFriend) {
+        state.user?.friends.splice(indexOfFriend, 1);
+        console.log("unfriend success ", indexOfFriend);
+      }
+    },
+
+    addCurrentUserFriend: (state, action) => {
+      console.log("ran but not worked");
+      state.user?.friends.push(action.payload);
+    },
+    // updateCurrentUser: (state, action) => {
+    //   state.user = { ...action.payload };
+    // },
   },
 });
 
-export const { setUser, setLoading, setError, clearError, logout } =
-  authSlice.actions;
+export const {
+  setUser,
+  setLoading,
+  setError,
+  clearError,
+  logout,
+  addCurrentUserFriendRequest,
+  removeCurrentUserFriend,
+  addCurrentUserFriend,
+  // updateCurrentUser,
+} = authSlice.actions;
 export default authSlice.reducer;

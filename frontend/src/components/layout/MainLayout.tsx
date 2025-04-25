@@ -28,7 +28,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
 
       {/* Main content + Suggested Users */}
       <main className="flex flex-1  max-h-screen overflow-y-hidden">
-        <div className="flex-1 container mx-auto px-4">{children}</div>
+        <div className="flex-1 container mx-auto px-4 ">{children}</div>
 
         {/* Right-side suggested users */}
         {location.pathname === "/feed" && (

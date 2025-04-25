@@ -10,10 +10,6 @@ import {
   Image as ImageIcon,
   AlertTriangle,
   Clock1,
-  CrossIcon,
-  Cross,
-  LucideCross,
-  CroissantIcon,
   X,
   MessageCircleOff,
 } from "lucide-react";
@@ -22,18 +18,18 @@ import { useAppDispatch, useAppSelector } from "../../store";
 import axios from "axios";
 import { BASE_URL } from "../../utils/constants";
 import {
-  sendConnectionRequest,
-  acceptConnectionRequest,
   setIsOwnProfile,
   setLoading,
   setProfile,
   setError,
-  unfriendUser,
-  rejectConnectionRequest,
+
+  // updateRecievedFriendRequests,
+  // removeUserProfileFriend,
 } from "../../store/slices/userProfileSlice";
 import Post from "../common/Post";
 import EditProfileModal from "./EditProfileModal";
 import { useParams } from "react-router";
+import { setUser } from "../../store/slices/authSlice";
 
 interface ApiError {
   message: string;
@@ -129,13 +125,103 @@ const UserProfile = () => {
       );
     }
   };
+
+  const handleSendFriendRequest = async () => {
+    try {
+      const response = await axios.post(
+        `${BASE_URL}/users/friends/request/${profile?._id}`,
+        {},
+        { withCredentials: true }
+      );
+
+      console.log(response);
+
+      // dispatch(addRecievedUserProfileFriendRequest(currentUser?._id));
+      // dispatch(addCurrentUserFriendRequest(profile?._id));
+      dispatch(setProfile(response.data.otherUser));
+      dispatch(setUser(response.data.currentUser));
+    } catch (error: any) {
+      dispatch(
+        setError(
+          error.response?.data?.message || "Failed to send connection request"
+        )
+      );
+    }
+  };
+
+  const handleUnfriend = async () => {
+    try {
+      const response = await axios.post(
+        `${BASE_URL}/users/friends/unfriend/${profile?._id}`,
+        {},
+        { withCredentials: true }
+      );
+
+      console.log(response);
+
+      // dispatch(removeCurrentUserFriend(profile?._id));
+      // dispatch(removeUserProfileFriend(currentUser?._id));
+      dispatch(setProfile(response.data.otherUser));
+      dispatch(setUser(response.data.currentUser));
+    } catch (error: any) {
+      console.log(error);
+      dispatch(
+        setError(
+          error.response?.data?.message || "Failed to accept connection request"
+        )
+      );
+    }
+  };
+
+  const handleAcceptFriendRequest = async () => {
+    try {
+      const response = await axios.post(
+        `${BASE_URL}/users/friends/accept/${profile?._id}`,
+        {},
+        { withCredentials: true }
+      );
+
+      // dispatch(addRecievedUserProfileFriendRequest(currentUser?._id));
+      // dispatch(addCurrentUserFriend(profile?._id));
+      dispatch(setProfile(response.data.otherUser));
+      dispatch(setUser(response.data.currentUser));
+    } catch (error: any) {
+      console.log(error);
+      dispatch(
+        setError(
+          error.response?.data?.message || "Failed to accept connection request"
+        )
+      );
+    }
+  };
+
+  const handleRejectFriendRequest = async () => {
+    try {
+      const response = await axios.post(
+        `${BASE_URL}/users/friends/reject/${userId}`,
+        {},
+        { withCredentials: true }
+      );
+
+      dispatch(setProfile(response.data.otherUser));
+      dispatch(setUser(response.data.currentUser));
+    } catch (error: any) {
+      console.log(error);
+      dispatch(
+        setError(
+          error.response?.data?.message || "Failed to accept connection request"
+        )
+      );
+    }
+  };
+
   useEffect(() => {
     if (userId) {
       //   dispatch(fetchUserProfile(userId));
       fetchUserProfile(userId);
       dispatch(setIsOwnProfile(userId === currentUser?._id));
     }
-  }, [userId, currentUser?._id, dispatch, retryCount]);
+  }, [userId, currentUser?._id, retryCount]);
 
   const handleRetry = () => {
     setRetryCount((prev) => prev + 1);
@@ -172,59 +258,59 @@ const UserProfile = () => {
     navigate(`/messages/${convId}`);
   };
 
-  const handleConnectionRequest = async () => {
-    if (userId) {
-      try {
-        setActionError(null);
-        await dispatch(sendConnectionRequest(userId));
-      } catch (error) {
-        const apiError = error as ApiError;
-        setActionError(apiError.message || "Failed to send connection request");
-      }
-    }
-  };
+  // const handleConnectionRequest = async () => {
+  //   if (userId) {
+  //     try {
+  //       setActionError(null);
+  //       await dispatch(sendConnectionRequest(userId));
+  //     } catch (error) {
+  //       const apiError = error as ApiError;
+  //       setActionError(apiError.message || "Failed to send connection request");
+  //     }
+  //   }
+  // };
 
-  const handleAcceptRequest = async () => {
-    if (userId) {
-      try {
-        setActionError(null);
-        await dispatch(acceptConnectionRequest(userId));
-      } catch (error) {
-        const apiError = error as ApiError;
-        setActionError(
-          apiError.message || "Failed to accept connection request"
-        );
-      }
-    }
-  };
+  // const handleAcceptRequest = async () => {
+  //   if (userId) {
+  //     try {
+  //       setActionError(null);
+  //       await dispatch(acceptConnectionRequest(userId));
+  //     } catch (error) {
+  //       const apiError = error as ApiError;
+  //       setActionError(
+  //         apiError.message || "Failed to accept connection request"
+  //       );
+  //     }
+  //   }
+  // };
 
-  const handleRejectRequest = async () => {
-    if (userId) {
-      try {
-        setActionError(null);
-        await dispatch(rejectConnectionRequest(userId));
-      } catch (error) {
-        const apiError = error as ApiError;
-        setActionError(
-          apiError.message || "Failed to accept connection request"
-        );
-      }
-    }
-  };
+  // const handleRejectRequest = async () => {
+  //   if (userId) {
+  //     try {
+  //       setActionError(null);
+  //       await dispatch(rejectConnectionRequest(userId));
+  //     } catch (error) {
+  //       const apiError = error as ApiError;
+  //       setActionError(
+  //         apiError.message || "Failed to accept connection request"
+  //       );
+  //     }
+  //   }
+  // };
 
-  const handleUnfriendUser = async () => {
-    if (userId) {
-      try {
-        setActionError(null);
-        await dispatch(unfriendUser(userId));
-      } catch (error) {
-        const apiError = error as ApiError;
-        setActionError(
-          apiError.message || "Failed to accept connection request"
-        );
-      }
-    }
-  };
+  // const handleUnfriendUser = async () => {
+  //   if (userId) {
+  //     try {
+  //       setActionError(null);
+  //       await dispatch(unfriendUser(userId));
+  //     } catch (error) {
+  //       const apiError = error as ApiError;
+  //       setActionError(
+  //         apiError.message || "Failed to accept connection request"
+  //       );
+  //     }
+  //   }
+  // };
 
   const getCurrentTabContent = () => {
     const content =
@@ -370,7 +456,7 @@ const UserProfile = () => {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
-      className="min-h-screen bg-background text-gray-100"
+      className="h-screen overflow-y-auto py-5  bg-background no-scrollbar text-gray-100"
     >
       {/* Action Error Alert */}
       {actionError && (
@@ -403,21 +489,21 @@ const UserProfile = () => {
       </motion.div> */}
 
       {/* Profile Info */}
-      <div className="max-w-6xl mx-auto px-4  relative z-10">
+      <div className="max-w-6xl mx-auto px-4   z-10">
         <motion.div
           initial={{ y: 50, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.3 }}
-          className="flex flex-col md:flex-row items-center md:items-end space-y-4 md:space-y-0 md:space-x-6"
+          className="flex flex-col md:flex-row items-center  md:items-end space-y-4 md:space-y-0 md:space-x-6"
         >
           <motion.div whileHover={{ scale: 1.02 }} className="relative">
             <img
               src={
                 profile.profilePicture ||
-                "https://png.pngtree.com/png-clipart/20231019/original/pngtree-user-profile-avatar-png-image_13369988.png"
+                `https://api.dicebear.com/5.x/initials/svg?seed=${profile.username}`
               }
               alt="Profile"
-              className="w-40 h-40 rounded-full border-4 border-background shadow-xl"
+              className="w-40 h-40 object-cover rounded-full border-4 border-background shadow-xl"
             />
             {isOwnProfile && (
               <motion.button
@@ -500,7 +586,7 @@ const UserProfile = () => {
                     <motion.button
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
-                      onClick={handleAcceptRequest}
+                      onClick={handleAcceptFriendRequest}
                       className="btn-primary flex items-center space-x-2"
                     >
                       <Check size={20} />
@@ -510,7 +596,7 @@ const UserProfile = () => {
                     <motion.button
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
-                      onClick={handleRejectRequest}
+                      onClick={handleRejectFriendRequest}
                       className="btn-secondary flex items-center space-x-2"
                     >
                       <X size={20} />
@@ -537,7 +623,7 @@ const UserProfile = () => {
                     <motion.button
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
-                      onClick={handleConnectionRequest}
+                      onClick={handleSendFriendRequest}
                       className="btn-primary flex items-center space-x-2"
                     >
                       <UserPlus size={20} />
@@ -549,7 +635,7 @@ const UserProfile = () => {
                   <motion.button
                     whileHover={{ scale: 1.05 }}
                     whileTap={{ scale: 0.95 }}
-                    onClick={handleUnfriendUser}
+                    onClick={handleUnfriend}
                     className="btn-secondary flex items-center space-x-2"
                   >
                     <MessageCircleOff size={20} />

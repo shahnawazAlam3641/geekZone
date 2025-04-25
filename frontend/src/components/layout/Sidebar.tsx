@@ -64,7 +64,7 @@ const Sidebar = ({ onClose }: SidebarProps) => {
       socket.off("new-notification");
       socket.disconnect();
     };
-  }, [user._id]);
+  }, [user?._id]);
 
   // const handleNavigation = () => {
   //   if (onClose) {
