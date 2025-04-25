@@ -1,6 +1,5 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
-import { io } from "socket.io-client";
 import axios from "axios";
 import { motion } from "framer-motion";
 import { ChevronLeft, SendHorizonal } from "lucide-react";
@@ -165,7 +164,7 @@ const Messages = () => {
   };
 
   return (
-    <div className="flex h-screen w-full overflow-hidden">
+    <div className="flex h-screen w-full">
       {/* Friends List */}
       <div
         className={`${
@@ -233,7 +232,7 @@ const Messages = () => {
       <div className="flex-1 flex flex-col bg-[#141414] text-white relative">
         {selectedFriend ? (
           <>
-            <div className="p-4 border-b border-[#333] flex items-center gap-3">
+            <div className="p-4 border-b border-[#333]  flex items-center gap-3">
               {/* Back Button on mobile */}
               <button
                 onClick={() => {

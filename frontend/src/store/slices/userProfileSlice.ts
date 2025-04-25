@@ -1,7 +1,4 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import axios from "axios";
-import { BASE_URL } from "../../utils/constants";
-import { updateSentFriendRequests } from "./authSlice";
 
 interface UserProfile {
   friends: any;
@@ -86,9 +83,6 @@ export const {
   setError,
   setIsOwnProfile,
   updateProfile,
-  addRecievedUserProfileFriendRequest,
-  removeUserProfileFriend,
-  addUserProfileFriend,
   // updateUserProfile,
 } = userProfileSlice.actions;
 

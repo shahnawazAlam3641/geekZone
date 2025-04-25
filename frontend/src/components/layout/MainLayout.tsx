@@ -3,7 +3,7 @@ import { Menu } from "lucide-react";
 import Sidebar from "./Sidebar";
 import { motion } from "framer-motion";
 import SuggestedUsers from "./SuggestedUsers";
-import { useLocation, useParams } from "react-router";
+import { useLocation } from "react-router";
 
 interface MainLayoutProps {
   children: ReactNode;

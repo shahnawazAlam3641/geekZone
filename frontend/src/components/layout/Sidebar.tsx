@@ -1,13 +1,5 @@
 import { motion } from "framer-motion";
-import {
-  Home,
-  Search,
-  Bell,
-  MessageSquare,
-  User,
-  Settings,
-  LogOut,
-} from "lucide-react";
+import { Home, Search, Bell, MessageSquare, User, LogOut } from "lucide-react";
 import NavItem from "../common/NavItem";
 import { useAuth } from "../../hooks/useAuth";
 import { useNavigate } from "react-router";
@@ -21,11 +13,11 @@ import axios from "axios";
 import { useEffect } from "react";
 import { socket } from "../../utils/socket";
 
-interface SidebarProps {
-  onClose?: () => void;
-}
+// interface SidebarProps {
+//   onClose?: () => void;
+// }
 
-const Sidebar = ({ onClose }: SidebarProps) => {
+const Sidebar = () => {
   const { logoutUser } = useAuth();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
