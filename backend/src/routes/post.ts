@@ -101,7 +101,7 @@ router.post(
   auth,
   async (req: Request, res: Response): Promise<void> => {
     try {
-      const post = await Post.findById(req.params.id);
+      const post = await Post.findById(req.params.id).populate("author");
       if (!post) {
         res.status(404).json({ success: false, message: "Post not found" });
         return;
@@ -156,7 +156,7 @@ router.post(
   async (req: Request, res: Response): Promise<void> => {
     try {
       const { content } = req.body;
-      const post = await Post.findById(req.params.id);
+      const post = await Post.findById(req.params.id).populate("author");
 
       if (!post) {
         res.status(404).json({ success: "false", message: "Post not found" });
