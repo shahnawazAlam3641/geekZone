@@ -97,16 +97,6 @@ router.get(
   auth,
   async (req: Request, res: Response): Promise<void> => {
     try {
-      // console.log("-------------------------------");
-      // console.log(req.userId);
-      // console.log(req.params.participants);
-      // console.log("-------------------------------");
-
-      // if (!req.params.participants.split("_").includes(req.userId)) {
-      //   res.status(400).json({ message: "Can't access this conversation" });
-      //   return;
-      // }
-
       const conversation = await Conversation.findOne({
         participants: { $all: [req.userId, req.params.friendId] },
       })
@@ -119,11 +109,6 @@ router.get(
         res.status(404).json({ message: "Conversation not found" });
         return;
       }
-
-      // const messages = await Message.find({ conversation: conversation._id })
-      //   .populate("sender", "username profilePicture")
-      //   .sort({ createdAt: 1 });
-
       res.json(conversation);
     } catch (error) {
       res

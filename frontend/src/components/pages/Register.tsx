@@ -16,7 +16,6 @@ const Register = () => {
 
   const registerUser = async (data: FieldValues) => {
     try {
-      // setLoading(true);
       dispatch(setLoading(true));
       dispatch(setError(null));
 

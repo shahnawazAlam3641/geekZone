@@ -1,203 +1,10 @@
-// import { useRef, useState } from "react";
-// import { motion, AnimatePresence } from "framer-motion";
-// import { X, Upload, Loader2 } from "lucide-react";
-// import axios from "axios";
-// import { BASE_URL } from "../../utils/constants";
-// import { useForm } from "react-hook-form";
-
-// interface FormData {
-//   username: string;
-//   bio: string;
-//   profilePicture: string;
-// }
-
-// interface EditProfileModalProps {
-//   isOpen: boolean;
-//   onClose: () => void;
-//   profile: FormData;
-//   onUpdate: (updatedProfile: FormData) => void;
-// }
-
-// const EditProfileModal = ({
-//   isOpen,
-//   onClose,
-//   profile,
-//   onUpdate,
-// }: EditProfileModalProps) => {
-//   const [isUploading, setIsUploading] = useState(false);
-//   const fileInputRef = useRef<HTMLInputElement>(null);
-
-//   const {
-//     register,
-//     handleSubmit,
-//     setValue,
-//     formState: { errors, isSubmitting },
-//   } = useForm<FormData>({
-//     defaultValues: {
-//       username: profile.username,
-//       bio: profile.bio,
-//       profilePicture: profile.profilePicture,
-//     },
-//   });
-
-//   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-//     const file = e.target.files?.[0];
-//     if (!file) return;
-
-//     try {
-//       setIsUploading(true);
-
-//       // Create form data
-//       const formData = new FormData();
-//       formData.append("file", file);
-//       formData.append("upload_preset", "geekzone");
-//       formData.append("api_key", import.meta.env.VITE_CLOUDINARY_KEY);
-
-//       // Upload to Cloudinary
-//       const cloudinaryResponse = await axios.post(
-//         `https://api.cloudinary.com/v1_1/${
-//           import.meta.env.VITE_CLOUDINARY_CLOUD_NAME
-//         }/image/upload`,
-//         formData
-//       );
-
-//       setValue("profilePicture", cloudinaryResponse.data.secure_url);
-//     } catch (error) {
-//       console.error("Error uploading image:", error);
-//     } finally {
-//       setIsUploading(false);
-//     }
-//   };
-
-//   const onSubmit = async (data: FormData) => {
-//     try {
-//       const response = await axios.put(`${BASE_URL}/users/profile`, data, {
-//         withCredentials: true,
-//       });
-//       onUpdate(response.data);
-//       onClose();
-//     } catch (error) {
-//       console.error("Error updating profile:", error);
-//     }
-//   };
-
-//   return (
-//     <AnimatePresence>
-//       {isOpen && (
-//         <motion.div
-//           initial={{ opacity: 0 }}
-//           animate={{ opacity: 1 }}
-//           exit={{ opacity: 0 }}
-//           className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center"
-//         >
-//           <motion.div
-//             initial={{ scale: 0.9, opacity: 0 }}
-//             animate={{ scale: 1, opacity: 1 }}
-//             exit={{ scale: 0.9, opacity: 0 }}
-//             className="bg-background rounded-lg p-6 w-full max-w-md relative"
-//           >
-//             <button
-//               onClick={onClose}
-//               className="absolute top-4 right-4 text-gray-400 hover:text-white"
-//             >
-//               <X size={24} />
-//             </button>
-
-//             <h2 className="text-2xl font-bold mb-6">Edit Profile</h2>
-
-//             <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-//               <div className="flex flex-col items-center space-y-4">
-//                 <div className="relative">
-//                   <img
-//                     src={
-//                       profile.profilePicture ||
-//                       "https://via.placeholder.com/150"
-//                     }
-//                     alt="Profile"
-//                     className="w-32 h-32 rounded-full object-cover"
-//                   />
-//                   <button
-//                     type="button"
-//                     onClick={() => fileInputRef.current?.click()}
-//                     className="absolute bottom-0 right-0 bg-primary p-2 rounded-full hover:bg-primary/90"
-//                     disabled={isUploading}
-//                   >
-//                     {isUploading ? (
-//                       <Loader2 className="w-5 h-5 animate-spin" />
-//                     ) : (
-//                       <Upload className="w-5 h-5" />
-//                     )}
-//                   </button>
-//                   <input
-//                     type="file"
-//                     ref={fileInputRef}
-//                     onChange={handleImageUpload}
-//                     accept="image/*"
-//                     className="hidden"
-//                   />
-//                 </div>
-//               </div>
-
-//               <div className="space-y-4">
-//                 <div>
-//                   <label className="block text-sm font-medium mb-2">
-//                     Username
-//                   </label>
-//                   <input
-//                     {...register("username", {
-//                       required: "Username is required",
-//                     })}
-//                     className="w-full px-4 py-2 bg-gray-800 rounded focus:outline-none focus:ring-2 focus:ring-primary"
-//                   />
-//                   {errors.username && (
-//                     <p className="text-red-500 text-sm mt-1">
-//                       {errors.username.message}
-//                     </p>
-//                   )}
-//                 </div>
-
-//                 <div>
-//                   <label className="block text-sm font-medium mb-2">Bio</label>
-//                   <textarea
-//                     {...register("bio")}
-//                     rows={4}
-//                     className="w-full px-4 py-2 bg-gray-800 rounded focus:outline-none focus:ring-2 focus:ring-primary"
-//                   />
-//                 </div>
-//               </div>
-
-//               <div className="flex justify-end space-x-4">
-//                 <button
-//                   type="button"
-//                   onClick={onClose}
-//                   className="px-4 py-2 text-gray-400 hover:text-white"
-//                 >
-//                   Cancel
-//                 </button>
-//                 <button
-//                   type="submit"
-//                   disabled={isSubmitting}
-//                   className="px-4 py-2 bg-primary text-white rounded hover:bg-primary/90 disabled:opacity-50"
-//                 >
-//                   {isSubmitting ? "Saving..." : "Save Changes"}
-//                 </button>
-//               </div>
-//             </form>
-//           </motion.div>
-//         </motion.div>
-//       )}
-//     </AnimatePresence>
-//   );
-// };
-
-// export default EditProfileModal;
-
 import { useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Upload, Loader2 } from "lucide-react";
 import axios from "axios";
 import { BASE_URL } from "../../utils/constants";
 import { useForm } from "react-hook-form";
+import { useAppSelector } from "../../store";
 
 interface FormData {
   username: string;
@@ -223,12 +30,12 @@ const EditProfileModal = ({
   const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
+  const { user } = useAppSelector((state) => state.auth);
 
   const {
     register,
     handleSubmit,
     setValue,
-    watch,
     formState: { errors, isSubmitting },
   } = useForm<FormData>({
     defaultValues: {
@@ -311,7 +118,7 @@ const EditProfileModal = ({
                       selectedImage
                         ? URL.createObjectURL(selectedImage)
                         : profile.profilePicture ||
-                          "https://via.placeholder.com/150"
+                          `https://api.dicebear.com/5.x/initials/svg?seed=${user?._id}`
                     }
                     alt="Profile"
                     className="w-32 h-32 rounded-full object-cover"

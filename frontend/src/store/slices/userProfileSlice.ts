@@ -55,25 +55,6 @@ const userProfileSlice = createSlice({
         state.profile = { ...state.profile, ...action.payload };
       }
     },
-    // addRecievedUserProfileFriendRequest: (state, action) => {
-    //   state.profile?.recievedFriendRequests.push(action.payload);
-    // },
-    // removeUserProfileFriend: (state, action) => {
-    //   const indexOfFriend = state.profile?.friends.findIndex(
-    //     (friend: string) => {
-    //       return friend == action.payload;
-    //     }
-    //   );
-    //   state.profile?.friends.splice(indexOfFriend, 1);
-    // },
-    // addUserProfileFriend: (state, action) => {
-    //   console.log("ran but not worked");
-    //   state.profile?.friends.push(action.payload);
-    // },
-
-    // updateUserProfile: (state, action) => {
-    //   state.profile = { ...action.payload };
-    // },
   },
 });
 
@@ -83,95 +64,6 @@ export const {
   setError,
   setIsOwnProfile,
   updateProfile,
-  // updateUserProfile,
 } = userProfileSlice.actions;
-
-// Thunk actions
-// export const fetchUserProfile = (userId: string) => async (dispatch: any) => {
-//   try {
-//     dispatch(setLoading(true));
-//     const response = await axios.get(`/api/v1/users/${userId}`, {
-//       withCredentials: true,
-//     });
-//     console.log(response.data);
-//     dispatch(setProfile(response.data));
-//   } catch (error: any) {
-//     dispatch(
-//       setError(error.response?.data?.message || "Failed to fetch profile")
-//     );
-//   }
-// };
-
-// export const sendConnectionRequest =
-//   (userId: string) => async (dispatch: any) => {
-//     try {
-//       await axios.post(
-//         `${BASE_URL}/users//friends/request/${userId}`,
-//         {},
-//         { withCredentials: true }
-//       );
-//       dispatch(updateRecievedFriendRequests(userId));
-//       dispatch(updateSentFriendRequests(userId));
-//     } catch (error: any) {
-//       dispatch(
-//         setError(
-//           error.response?.data?.message || "Failed to send connection request"
-//         )
-//       );
-//     }
-//   };
-
-// export const acceptConnectionRequest =
-//   (userId: string) => async (dispatch: any) => {
-//     try {
-//       await axios.post(
-//         `${BASE_URL}/users/friends/accept/${userId}`,
-//         {},
-//         { withCredentials: true }
-//       );
-//     } catch (error: any) {
-//       console.log(error);
-//       dispatch(
-//         setError(
-//           error.response?.data?.message || "Failed to accept connection request"
-//         )
-//       );
-//     }
-//   };
-
-// export const rejectConnectionRequest =
-//   (userId: string) => async (dispatch: any) => {
-//     try {
-//       await axios.post(
-//         `${BASE_URL}/users/friends/reject/${userId}`,
-//         {},
-//         { withCredentials: true }
-//       );
-//     } catch (error: any) {
-//       console.log(error);
-//       dispatch(
-//         setError(
-//           error.response?.data?.message || "Failed to accept connection request"
-//         )
-//       );
-//     }
-//   };
-
-// export const unfriendUser = (userId: string) => async (dispatch: any) => {
-//   try {
-//     await axios.post(
-//       `${BASE_URL}/users/friends/unfriend/${userId}`,
-//       {},
-//       { withCredentials: true }
-//     );
-//   } catch (error: any) {
-//     console.log(error);
-//     dispatch(
-//       setError(
-//         error.response?.data?.message || "Failed to accept connection request"
-//       )
-//     );
-//   }
-// };
 
 export default userProfileSlice.reducer;

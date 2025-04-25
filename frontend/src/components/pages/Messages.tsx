@@ -14,8 +14,6 @@ import { format } from "date-fns";
 import { socket } from "../../utils/socket";
 import MessageContent from "../common/MessageContent";
 
-// const socket = io("http://localhost:3001");
-
 const Messages = () => {
   const { conversationId } = useParams();
   const navigate = useNavigate();
@@ -138,14 +136,9 @@ const Messages = () => {
     const msg = {
       content: input,
       sender: loggedInUserId,
-      //   status: "sent",
       createdAt: new Date(),
-      //   .toLocaleTimeString([], {
-      //     hour: "2-digit",
-      //     minute: "2-digit",
-      //   }),
     };
-    // dispatch(addMessage(msg));
+
     socket.emit("send-message", { conversationId, message: msg });
     setInput("");
     socket.emit("stop-typing", { conversationId, username: loggedInUserId });

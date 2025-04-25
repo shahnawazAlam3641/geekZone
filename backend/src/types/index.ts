@@ -16,14 +16,6 @@ export interface UserDocument extends Document {
   createdAt: Date;
 }
 
-// export interface RequestWithUser extends Request {
-//   userId?: string;
-//   cookies: {
-//     token?: string;
-//     [key: string]: string | undefined;
-//   };
-// }
-
 export type RequestWithUserId = Request & {
   userId?: string;
   cookies: {

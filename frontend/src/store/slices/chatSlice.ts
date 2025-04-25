@@ -1,12 +1,9 @@
-// store/chatSlice.ts
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 
 interface Message {
   id: string;
   sender: string;
   content: string;
-  // status: "sent" | "seen";
-  // timestamp: string;
   createdAt: string;
 }
 
@@ -25,7 +22,6 @@ const chatSlice = createSlice({
   initialState,
   reducers: {
     addMessage(state, action: PayloadAction<Message>) {
-      // state.messages.push(action.payload);
       state.messages = [...state.messages, action.payload];
     },
     updateMessageStatus(

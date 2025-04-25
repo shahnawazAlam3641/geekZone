@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import axios from "axios";
 import { BASE_URL } from "../../utils/constants";
-import { useAppDispatch, useAppSelector } from "../../store";
+import { useAppSelector } from "../../store";
 import { Bell } from "lucide-react";
 import { format } from "date-fns";
 import { motion } from "framer-motion";
@@ -28,22 +28,9 @@ export interface Notification {
 
 export default function NotificationPage() {
   const { notifications } = useAppSelector((state) => state.notification);
-  const { posts } = useAppSelector((state) => state.posts);
   const [selectedPost, setSelectedPost] = useState<PostSchema | null>(null);
 
   const navigate = useNavigate();
-
-  // const fetchNotifications = async () => {
-  //   const response = await axios.get(`${BASE_URL}/notifications`, {
-  //     withCredentials: true,
-  //   });
-  //   dispatch(setNotifications(response.data.notifications));
-  // };
-
-  //   const markNotificationAsRead = async (id: string) => {
-  //     await axios.put(`${BASE_URL}/notifications/${id}/read`, null, {
-  //       withCredentials: true,
-  //     });
 
   const fetchPost = async (postId: string) => {
     try {
@@ -71,14 +58,7 @@ export default function NotificationPage() {
     }
   };
 
-  // dispatch(
-  //   setNotifications(
-  //     notifications.map((n) => (n._id === id ? { ...n, isRead: true } : n))
-  //   )
-  // );
-
   useEffect(() => {
-    //   fetchNotifications();
     markAllNotificationAsRead();
   }, []);
 
@@ -158,24 +138,6 @@ export default function NotificationPage() {
                   <p className="text-xs text-white">
                     {format(n.createdAt, "MMM d, yyyy h:mm a")}
                   </p>
-
-                  {/* {n.post && (
-                  <Link
-                    to={`/posts/${n.post._id}`}
-                    className="block mt-2 text-blue-600 text-sm hover:underline"
-                  >
-                    View Post
-                  </Link>
-                )} */}
-
-                  {/* {!n.isRead && (
-                  <button
-                    onClick={() => markNotificationAsRead(n._id)}
-                    className="mt-1 text-xs text-white underline"
-                  >
-                    Mark as read
-                  </button>
-                )} */}
                 </div>
               </div>
 
@@ -195,7 +157,6 @@ export default function NotificationPage() {
                       }}
                       className=" bg-primary p-2 rounded-md cursor-pointer"
                     >
-                      {/* <Edit2 className="w-5 h-5" /> */}
                       View Post
                     </motion.button>
                   </div>

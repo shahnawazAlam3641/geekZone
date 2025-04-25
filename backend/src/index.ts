@@ -33,7 +33,6 @@ app.use(cookieParser());
 app.use(
   cors({
     origin: process.env.CLIENT_URL || "http://localhost:5173",
-    // origin: "*",
     credentials: true,
   })
 );
@@ -94,10 +93,6 @@ io.on("connection", (socket) => {
 
   socket.on("send-message", async ({ conversationId, message }) => {
     try {
-      // console.log(
-      //   "hereeeeeeeee------------>>>>>>>>>>>>",
-      //   conversationId.split("_")
-      // );
       let conversation = await Conversation.findOne({
         participants: { $all: conversationId.split("_") },
       });
@@ -118,8 +113,6 @@ io.on("connection", (socket) => {
       });
 
       conversation.messages?.push(newMessage._id);
-
-      // console.log("------------------------>>>>>>>>>", conversation);
 
       await conversation.save();
 

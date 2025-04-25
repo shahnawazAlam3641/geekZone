@@ -46,12 +46,11 @@ function App() {
         <Route
           path="/profile/:userId"
           element={
-            // <ProtectedRoute>
-            <MainLayout>
-              <UserProfile />
-              {/* <div>Call </div> */}
-            </MainLayout>
-            // </ProtectedRoute>
+            <ProtectedRoute>
+              <MainLayout>
+                <UserProfile />
+              </MainLayout>
+            </ProtectedRoute>
           }
         />
         <Route

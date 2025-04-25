@@ -22,9 +22,6 @@ import {
   setLoading,
   setProfile,
   setError,
-
-  // updateRecievedFriendRequests,
-  // removeUserProfileFriend,
 } from "../../store/slices/userProfileSlice";
 import Post from "../common/Post";
 import EditProfileModal from "./EditProfileModal";
@@ -133,11 +130,6 @@ const UserProfile = () => {
         {},
         { withCredentials: true }
       );
-
-      console.log(response);
-
-      // dispatch(addRecievedUserProfileFriendRequest(currentUser?._id));
-      // dispatch(addCurrentUserFriendRequest(profile?._id));
       dispatch(setProfile(response.data.otherUser));
       dispatch(setUser(response.data.currentUser));
     } catch (error: any) {
@@ -156,11 +148,6 @@ const UserProfile = () => {
         {},
         { withCredentials: true }
       );
-
-      console.log(response);
-
-      // dispatch(removeCurrentUserFriend(profile?._id));
-      // dispatch(removeUserProfileFriend(currentUser?._id));
       dispatch(setProfile(response.data.otherUser));
       dispatch(setUser(response.data.currentUser));
     } catch (error: any) {
@@ -180,9 +167,6 @@ const UserProfile = () => {
         {},
         { withCredentials: true }
       );
-
-      // dispatch(addRecievedUserProfileFriendRequest(currentUser?._id));
-      // dispatch(addCurrentUserFriend(profile?._id));
       dispatch(setProfile(response.data.otherUser));
       dispatch(setUser(response.data.currentUser));
     } catch (error: any) {
@@ -217,7 +201,6 @@ const UserProfile = () => {
 
   useEffect(() => {
     if (userId) {
-      //   dispatch(fetchUserProfile(userId));
       fetchUserProfile(userId);
       dispatch(setIsOwnProfile(userId === currentUser?._id));
     }
@@ -257,61 +240,6 @@ const UserProfile = () => {
   const handleSendMessage = () => {
     navigate(`/messages/${convId}`);
   };
-
-  // const handleConnectionRequest = async () => {
-  //   if (userId) {
-  //     try {
-  //       setActionError(null);
-  //       await dispatch(sendConnectionRequest(userId));
-  //     } catch (error) {
-  //       const apiError = error as ApiError;
-  //       setActionError(apiError.message || "Failed to send connection request");
-  //     }
-  //   }
-  // };
-
-  // const handleAcceptRequest = async () => {
-  //   if (userId) {
-  //     try {
-  //       setActionError(null);
-  //       await dispatch(acceptConnectionRequest(userId));
-  //     } catch (error) {
-  //       const apiError = error as ApiError;
-  //       setActionError(
-  //         apiError.message || "Failed to accept connection request"
-  //       );
-  //     }
-  //   }
-  // };
-
-  // const handleRejectRequest = async () => {
-  //   if (userId) {
-  //     try {
-  //       setActionError(null);
-  //       await dispatch(rejectConnectionRequest(userId));
-  //     } catch (error) {
-  //       const apiError = error as ApiError;
-  //       setActionError(
-  //         apiError.message || "Failed to accept connection request"
-  //       );
-  //     }
-  //   }
-  // };
-
-  // const handleUnfriendUser = async () => {
-  //   if (userId) {
-  //     try {
-  //       setActionError(null);
-  //       await dispatch(unfriendUser(userId));
-  //     } catch (error) {
-  //       const apiError = error as ApiError;
-  //       setActionError(
-  //         apiError.message || "Failed to accept connection request"
-  //       );
-  //     }
-  //   }
-  // };
-
   const getCurrentTabContent = () => {
     const content =
       activeTab === "posts"
@@ -472,21 +400,6 @@ const UserProfile = () => {
           </div>
         </motion.div>
       )}
-
-      {/* Cover Photo */}
-      {/* <motion.div
-        initial={{ height: 0 }}
-        animate={{ height: "40vh" }}
-        transition={{ duration: 0.8, ease: "easeOut" }}
-        className="relative"
-      >
-        <img
-          src={profile.coverPicture || "/default-cover.jpg"}
-          alt="Cover"
-          className="w-full h-full object-cover"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent" />
-      </motion.div> */}
 
       {/* Profile Info */}
       <div className="max-w-6xl mx-auto px-4   z-10">

@@ -112,11 +112,6 @@ const Sidebar = () => {
             label="Profile"
             to={`/profile/${user?._id}`}
           />
-          {/* <NavItem
-            icon={<Settings className="w-6 h-6" />}
-            label="Settings"
-            to="/settings"
-          /> */}
         </nav>
         <NavItem
           icon={<LogOut className="w-6 h-6" />}

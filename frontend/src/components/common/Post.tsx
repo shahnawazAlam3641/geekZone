@@ -87,7 +87,7 @@ const Post = ({
   };
 
   const isLiked = user && post?.likes?.includes(user._id);
-  // console.log(post);
+
   return (
     <motion.article
       initial={{ opacity: 0, y: 20 }}
@@ -105,7 +105,7 @@ const Post = ({
             <img
               src={
                 post?.author?.profilePicture ||
-                "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop"
+                `https://api.dicebear.com/5.x/initials/svg?seed=${post?.author?.username}`
               }
               alt={post?.author?.username}
               className="w-10 h-10 rounded-full object-cover"
@@ -146,22 +146,13 @@ const Post = ({
         )}
 
         {/* Post Image - if not undefined*/}
-        {
-          post?.image && (
-            <img
-              src={post?.image}
-              alt="Post content"
-              className="w-full h-64 object-cover rounded-lg mb-4"
-            />
-          )
-          // (
-          //   <div className="w-full h-32 bg-gray-800/50 rounded-lg mb-4 flex items-center justify-center">
-          //     <p className="text-gray-400 text-center px-4">
-          //       {post?.content || "No content available"}
-          //     </p>
-          //   </div>
-          // )
-        }
+        {post?.image && (
+          <img
+            src={post?.image}
+            alt="Post content"
+            className="w-full h-64 object-cover rounded-lg mb-4"
+          />
+        )}
 
         {/* Post Actions */}
         <div className="flex flex-wrap items-center gap-4 sm:gap-6 text-gray-400">
@@ -186,10 +177,6 @@ const Post = ({
               <ChevronDown className="w-4 h-4" />
             )}
           </button>
-          {/* <button className="flex items-center gap-2 hover:text-primary transition-colors">
-          <Share2 className="w-5 h-5" />
-          <span className="hidden sm:inline">Share</span>
-        </button> */}
           <button className="ml-auto hover:text-primary transition-colors">
             <Bookmark className="w-5 h-5" />
           </button>
@@ -230,7 +217,7 @@ const Post = ({
 
             {/* Comments List */}
             <div className="space-y-4 max-h-[40vh] overflow-y-auto">
-              {post.comments.map((comment) => (
+              {post?.comments.map((comment) => (
                 <motion.div
                   key={comment._id}
                   initial={{ opacity: 0, y: 10 }}
@@ -240,7 +227,7 @@ const Post = ({
                   <img
                     src={
                       comment.user.profilePicture ||
-                      "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?w=100&h=100&fit=crop"
+                      `https://api.dicebear.com/5.x/initials/svg?seed=${comment?.user?.username}`
                     }
                     alt={comment.user.username}
                     className="w-8 h-8 rounded-full object-cover"

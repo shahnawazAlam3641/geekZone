@@ -20,7 +20,7 @@ export function useAuth() {
           console.log("loading auth: " + loading);
           console.log("Checking auth please wait...........");
           const response = await axios.get(BASE_URL + "/auth/me", {
-            withCredentials: true, // Important: This ensures cookies are sent with the request
+            withCredentials: true,
           });
 
           if (response.data.user) {

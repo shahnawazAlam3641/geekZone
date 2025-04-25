@@ -60,21 +60,6 @@ router.put(
         { isRead: true }
       );
 
-      // const notification = await Notification.findById(req.params.id);
-
-      // if (!notification) {
-      //   res.status(404).json({ message: "Notification not found." });
-      //   return;
-      // }
-
-      // if (notification.recipient.toString() !== req.userId.toString()) {
-      //   res.status(403).json({ message: "Not authorized." });
-      //   return;
-      // }
-
-      // notification.isRead = true;
-      // await notification.save();
-
       res.json({ message: "Marked as read." });
     } catch (error) {
       res.status(500).json({ message: "Failed to mark as read." });

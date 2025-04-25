@@ -1,5 +1,3 @@
-// components/UserCard.tsx
-
 import { useNavigate } from "react-router-dom";
 import { BadgeCheck } from "lucide-react";
 

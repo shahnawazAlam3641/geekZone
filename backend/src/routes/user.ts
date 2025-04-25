@@ -237,9 +237,6 @@ router.post(
         return post.savedBy.some((saved) => saved._id.toString() === userId);
       });
 
-      // Convert user to plain object
-      // const userObject = user.toObject();
-
       res.json({
         message: "Friend request sent",
         otherUser: {
@@ -250,12 +247,6 @@ router.post(
         },
         currentUser: currentUser,
       });
-
-      // res.json({
-      //   message: "Friend request accepted",
-      //   currentUser: currentUser,
-      //   otherUser: friendUser,
-      // });
     } catch (error) {
       res
         .status(500)
@@ -328,9 +319,6 @@ router.post(
         return post.savedBy.some((saved) => saved._id.toString() === userId);
       });
 
-      // Convert user to plain object
-      // const userObject = user.toObject();
-
       res.json({
         message: "Friend request sent",
         otherUser: {
@@ -402,9 +390,6 @@ router.post(
         return post.savedBy.some((saved) => saved._id.toString() === userId);
       });
 
-      // Convert user to plain object
-      // const userObject = user.toObject();
-
       res.json({
         message: "Friend request sent",
         otherUser: {
@@ -415,13 +400,6 @@ router.post(
         },
         currentUser: currentUser,
       });
-
-      // res.json({
-      //   success: true,
-      //   message: "Unfriended successfully",
-      //   currentUser,
-      //   otherUser: friendUser,
-      // });
     } catch (error) {
       console.error("Error unfriending user:", error);
       res.status(500).json({

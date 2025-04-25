@@ -66,9 +66,6 @@ const authSlice = createSlice({
       console.log("ran but not worked");
       state.user?.friends.push(action.payload);
     },
-    // updateCurrentUser: (state, action) => {
-    //   state.user = { ...action.payload };
-    // },
   },
 });
 
@@ -81,6 +78,5 @@ export const {
   addCurrentUserFriendRequest,
   removeCurrentUserFriend,
   addCurrentUserFriend,
-  // updateCurrentUser,
 } = authSlice.actions;
 export default authSlice.reducer;
