@@ -106,7 +106,7 @@ const Feed = () => {
     return () => {
       isMounted = false;
     };
-  }, [page, dispatch, hasMore, loading]);
+  }, [page]);
 
   const handleCreatePost = async (data: FieldValues) => {
     if (!data.content.trim()) return;

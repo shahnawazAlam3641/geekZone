@@ -32,7 +32,7 @@ export default function SuggestedUsers({ isSidebarOpen }: Props) {
       initial={{ x: 100, opacity: 0 }}
       animate={{ x: 0, opacity: 1 }}
       transition={{ duration: 0.3 }}
-      className="hidden md:block lg:w-72 w-64 shrink-0 p-4 border-l border-gray-800 border-border bg-background h-screen overflow-y-auto no-scrollbar"
+      className="hidden lg:flex lg:w-72 w-64 shrink-0 p-4 border-l border-gray-800 border-border bg-background h-screen overflow-y-auto no-scrollbar"
       style={{
         display:
           window.innerWidth >= 1024 ||

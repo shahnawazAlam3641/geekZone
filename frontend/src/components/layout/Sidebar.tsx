@@ -66,11 +66,11 @@ const Sidebar = ({ onClose }: SidebarProps) => {
     };
   }, [user._id]);
 
-  const handleNavigation = () => {
-    if (onClose) {
-      onClose();
-    }
-  };
+  // const handleNavigation = () => {
+  //   if (onClose) {
+  //     onClose();
+  //   }
+  // };
 
   return (
     <motion.div
@@ -78,7 +78,7 @@ const Sidebar = ({ onClose }: SidebarProps) => {
       animate={{ x: 0, opacity: 1 }}
       exit={{ x: -300, opacity: 0 }}
       transition={{ duration: 0.3 }}
-      className="fixed left-0 top-0 h-full w-64 bg-background-lighter border-r border-gray-800 p-4 z-50"
+      className=" left-0 top-0 h-full w-64 bg-background-lighter border-r border-gray-800 p-4 z-50"
     >
       <div className="flex flex-col h-full">
         <div className="flex items-center gap-2 mb-8">
