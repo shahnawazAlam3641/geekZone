@@ -12,15 +12,17 @@ import axios from "axios";
 import { BASE_URL } from "../../utils/constants";
 import Post, { PostSchema } from "../common/Post";
 import { FieldValues, useForm } from "react-hook-form";
-import { X } from "lucide-react";
+import { X, AlertCircle } from "lucide-react";
 
 const Feed = () => {
-  const { register, handleSubmit, reset, watch } = useForm();
+  const { register, handleSubmit, reset, watch, setValue } = useForm();
   const [page, setPage] = useState(1);
   const [showModal, setShowModal] = useState(false);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [previewURL, setPreviewURL] = useState<string | null>(null);
-  const observer = useRef<IntersectionObserver>(null);
+  const [isEnhancing, setIsEnhancing] = useState(false);
+  const [enhanceError, setEnhanceError] = useState<string | null>(null);
+  const observer = useRef<IntersectionObserver | null>(null);
   const dispatch = useAppDispatch();
   const { posts, loading, hasMore } = useAppSelector((state) => state.posts);
   const { user } = useAppSelector((state) => state.auth);
@@ -40,6 +42,44 @@ const Feed = () => {
     [loading]
   );
 
+  const handleEnhanceText = async () => {
+    // Reset any previous error state
+    setEnhanceError(null);
+
+    // Check if text is too short to enhance
+    if (
+      !content ||
+      content.trim().length < 10 ||
+      content.split(" ").length < 5
+    ) {
+      setEnhanceError("Text too short to enhance. Please add more content.");
+      return;
+    }
+
+    try {
+      setIsEnhancing(true);
+      const response = await axios.post(
+        `${BASE_URL}/ai/enhanceText`,
+        { prompt: content },
+        {
+          withCredentials: true,
+        }
+      );
+
+      console.log(response);
+
+      // Update the text area with the enhanced content
+      if (response.data && response.data.enhancedText) {
+        setValue("content", response.data.enhancedText);
+      }
+    } catch (error) {
+      console.error("Error enhancing text:", error);
+      setEnhanceError("Failed to enhance text. Please try again.");
+    } finally {
+      setIsEnhancing(false);
+    }
+  };
+
   useEffect(() => {
     let isMounted = true;
 
@@ -55,7 +95,7 @@ const Feed = () => {
         dispatch(setHasMore(response.data.hasMore));
       } catch (error) {
         dispatch(setError("Error fetching posts"));
-        console.log(error);
+        console.error(error);
       } finally {
         if (isMounted) dispatch(setLoading(false));
       }
@@ -66,7 +106,7 @@ const Feed = () => {
     return () => {
       isMounted = false;
     };
-  }, [page]);
+  }, [page, dispatch, hasMore, loading]);
 
   const handleCreatePost = async (data: FieldValues) => {
     if (!data.content.trim()) return;
@@ -78,7 +118,7 @@ const Feed = () => {
     }
 
     try {
-      const response = await axios.post(BASE_URL + "/posts/create", formData, {
+      const response = await axios.post(`${BASE_URL}/posts/create`, formData, {
         withCredentials: true,
         headers: { "Content-Type": "multipart/form-data" },
       });
@@ -89,7 +129,7 @@ const Feed = () => {
       setShowModal(false);
     } catch (error) {
       dispatch(setError("Error creating post"));
-      console.log(error);
+      console.error(error);
     }
   };
 
@@ -121,7 +161,7 @@ const Feed = () => {
           <button
             type="submit"
             onClick={() => setShowModal(true)}
-            className="btn-primary cursor-pointer "
+            className="btn-primary cursor-pointer"
           >
             Post
           </button>
@@ -177,6 +217,14 @@ const Feed = () => {
                   {content?.length || 0}/500
                 </div>
 
+                {/* Enhancement Error Message */}
+                {enhanceError && (
+                  <div className="mt-2 text-red-400 text-sm flex items-center gap-1">
+                    <AlertCircle className="w-4 h-4" />
+                    <span>{enhanceError}</span>
+                  </div>
+                )}
+
                 {/* Image Upload */}
                 <div className="mt-4">
                   {previewURL ? (
@@ -216,9 +264,18 @@ const Feed = () => {
                 <div className="mt-4 flex justify-between items-center">
                   <button
                     type="button"
-                    className="text-sm px-4 py-2 border border-primary rounded-md hover:bg-primary hover:text-white transition"
+                    className="text-sm px-4 py-2 cursor-pointer border border-primary rounded-md hover:bg-primary hover:text-white transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-1"
+                    onClick={handleEnhanceText}
+                    disabled={isEnhancing || !content?.trim()}
                   >
-                    Enhance with AI
+                    {isEnhancing ? (
+                      <>
+                        <span className="inline-block h-4 w-4 border-2 border-t-transparent border-primary rounded-full animate-spin"></span>
+                        Enhancing...
+                      </>
+                    ) : (
+                      "Enhance with AI"
+                    )}
                   </button>
                   <button
                     type="submit"

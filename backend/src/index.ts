@@ -10,12 +10,12 @@ import userRoutes from "./routes/user";
 import conversationRoutes from "./routes/conversation";
 import messageRoutes from "./routes/message";
 import notificationRoutes from "./routes/notification";
+import aiRoutes from "./routes/ai";
 
 import { createServer } from "http";
 import { Server } from "socket.io";
 import Conversation from "./models/Conversation";
 import Message from "./models/Message";
-import mongoose from "mongoose";
 
 dotenv.config();
 
@@ -56,6 +56,7 @@ app.use("/api/v1/users", userRoutes);
 app.use("/api/v1/conversation", conversationRoutes);
 app.use("/api/v1/message", messageRoutes);
 app.use("/api/v1/notifications", notificationRoutes);
+app.use("/api/v1/ai", aiRoutes);
 
 const onlineUsers = new Map<string, string>();
 
