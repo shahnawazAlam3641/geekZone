@@ -1,6 +1,7 @@
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
 import { useAppSelector } from "../../store";
+import Spinner from "./spinner";
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
@@ -18,8 +19,8 @@ const ProtectedRoute = ({
   if (loading) {
     // Show loading state or a skeleton while auth is being checked
     return (
-      <div className="flex justify-center items-center h-screen">
-        Verifying authentication...
+      <div className="flex justify-center bg-background-lighter items-center h-screen">
+        <Spinner />
       </div>
     );
   }

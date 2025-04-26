@@ -13,6 +13,7 @@ import { BASE_URL } from "../../utils/constants";
 import Post, { PostSchema } from "../common/Post";
 import { FieldValues, useForm } from "react-hook-form";
 import { X, AlertCircle } from "lucide-react";
+import Spinner from "../common/spinner";
 
 const Feed = () => {
   const { register, handleSubmit, reset, watch, setValue } = useForm();
@@ -308,11 +309,7 @@ const Feed = () => {
       )}
 
       {/* Loading  */}
-      {loading && (
-        <div className="text-center py-4">
-          <div className="inline-block animate-spin rounded-full h-8 w-8 border-4 border-primary border-t-transparent"></div>
-        </div>
-      )}
+      {loading && <Spinner />}
     </div>
   );
 };
