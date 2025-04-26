@@ -1,6 +1,6 @@
 import { PayloadAction, createSlice } from "@reduxjs/toolkit";
 
-interface Message {
+export interface Message {
   id: string;
   sender: string;
   content: string;
@@ -24,17 +24,17 @@ const chatSlice = createSlice({
     addMessage(state, action: PayloadAction<Message>) {
       state.messages = [...state.messages, action.payload];
     },
-    updateMessageStatus(
-      state,
-      action: PayloadAction<{ id: string; status: "seen" | "sent" }>
-    ) {
-      const message = state.messages.find(
-        (msg) => msg.id === action.payload.id
-      );
-      if (message) {
-        message.status = action.payload.status;
-      }
-    },
+    // updateMessageStatus(
+    //   state,
+    //   action: PayloadAction<{ id: string; status: "seen" | "sent" }>
+    // ) {
+    //   const message = state.messages.find(
+    //     (msg) => msg.id === action.payload.id
+    //   );
+    //   if (message) {
+    //     message.status = action.payload.status;
+    //   }
+    // },
 
     setTypingUser(state, action: PayloadAction<string | null>) {
       state.typingUser = action.payload;
@@ -46,6 +46,5 @@ const chatSlice = createSlice({
   },
 });
 
-export const { addMessage, updateMessageStatus, setTypingUser, setMessages } =
-  chatSlice.actions;
+export const { addMessage, setTypingUser, setMessages } = chatSlice.actions;
 export default chatSlice.reducer;

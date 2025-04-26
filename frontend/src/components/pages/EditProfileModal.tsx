@@ -81,8 +81,8 @@ const EditProfileModal = ({
 
       onUpdate(response.data);
       onClose();
-    } catch (error: any) {
-      console.error("Error updating profile:", error.response?.data || error);
+    } catch (error) {
+      console.error("Error updating profile:", error);
     }
   };
 

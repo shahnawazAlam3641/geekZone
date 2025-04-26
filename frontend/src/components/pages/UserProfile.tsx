@@ -582,18 +582,18 @@ const UserProfile = () => {
             className="text-center cursor-pointer"
           >
             <div className="text-2xl font-bold">
-              {profile.followers?.length || 0}
+              {profile.friends?.length || 0}
             </div>
-            <div className="text-gray-400">Followers</div>
+            <div className="text-gray-400">Friends</div>
           </motion.div>{" "}
           <motion.div
             whileHover={{ scale: 1.05 }}
             className="text-center cursor-pointer"
           >
             <div className="text-2xl font-bold">
-              {profile.following?.length || 0}
+              {profile.savedPosts?.length || 0}
             </div>
-            <div className="text-gray-400">Following</div>
+            <div className="text-gray-400">Saved Posts</div>
           </motion.div>
         </motion.div>
 

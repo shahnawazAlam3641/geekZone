@@ -1,18 +1,18 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { Post } from "./postSlice";
 
 interface UserProfile {
-  friends: any;
-  sentFriendRequests: any;
-  recievedFriendRequests: any;
-  pendingFriendRequests: any;
+  friends: string[];
+  sentFriendRequests: string[];
+  recievedFriendRequests: string[];
   _id: string;
   username: string;
   email: string;
   bio: string;
   profilePicture: string;
-  posts: any[];
-  savedPosts: any[];
-  likedPosts: any[];
+  posts: Post[];
+  savedPosts: Post[];
+  likedPosts: Post[];
 }
 
 interface UserProfileState {

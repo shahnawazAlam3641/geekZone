@@ -562,7 +562,7 @@ router.put(
         message: "Profile updated successfully",
         user,
       });
-    } catch (error: any) {
+    } catch (error) {
       console.error(error);
       res.status(500).json({ success: false, message: "Something went wrong" });
     }

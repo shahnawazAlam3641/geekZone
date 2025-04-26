@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import { ChevronLeft, SendHorizonal } from "lucide-react";
 import {
   addMessage,
+  Message,
   setMessages,
   setTypingUser,
 } from "../../store/slices/chatSlice";
@@ -14,15 +15,23 @@ import { format } from "date-fns";
 import { socket } from "../../utils/socket";
 import MessageContent from "../common/MessageContent";
 
+interface Friend {
+  _id: string;
+  isVerified: boolean;
+  profilePicture: string;
+  username: string;
+  email: string;
+}
+
 const Messages = () => {
   const { conversationId } = useParams();
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { user } = useAppSelector((state) => state.auth);
-  const { messages, typingUser } = useAppSelector((state: any) => state.chat);
+  const { messages, typingUser } = useAppSelector((state) => state.chat);
 
-  const [friends, setFriends] = useState<any[]>([]);
-  const [selectedFriend, setSelectedFriend] = useState<any>(null);
+  const [friends, setFriends] = useState<Friend[]>([]);
+  const [selectedFriend, setSelectedFriend] = useState<Friend | null>(null);
   const [input, setInput] = useState("");
   const [isOnline, setIsOnline] = useState<Record<string, boolean>>({});
 
@@ -36,7 +45,7 @@ const Messages = () => {
       console.log("fetching old messages");
       dispatch(setMessages([]));
       const response = await axios.get(
-        `${BASE_URL}/conversation/get/${selectedFriend._id}`,
+        `${BASE_URL}/conversation/get/${selectedFriend?._id}`,
         { withCredentials: true }
       );
       console.log(response.data);
@@ -53,13 +62,16 @@ const Messages = () => {
         withCredentials: true,
       });
 
+      console.log(response?.data.friends);
       setFriends(response.data.friends);
       if (conversationId) {
-        const currentFriendChat = response.data.friends.filter((friend) => {
-          return (
-            [loggedInUserId, friend._id].sort().join("_") === conversationId
-          );
-        });
+        const currentFriendChat = response.data.friends.filter(
+          (friend: Friend) => {
+            return (
+              [loggedInUserId, friend._id].sort().join("_") === conversationId
+            );
+          }
+        );
         setSelectedFriend(currentFriendChat[0]);
       }
       console.log(response.data);
@@ -84,8 +96,8 @@ const Messages = () => {
       }
 
       socket.emit("join-room", { conversationId });
-      socket.on("receive-message", (message: any) => {
-        dispatch(addMessage({ ...message, status: "seen" }));
+      socket.on("receive-message", (message: Message) => {
+        dispatch(addMessage({ ...message }));
       });
       socket.on("user-typing", ({ username }) => {
         console.log(username, "is typing");
@@ -202,7 +214,7 @@ const Messages = () => {
                     friend.profilePicture ||
                     `https://api.dicebear.com/5.x/initials/svg?seed=${friend.username}`
                   }
-                  alt={friend.name}
+                  alt={friend?.username}
                   className="w-10 h-10 rounded-full object-cover"
                 />
                 <div>
@@ -264,7 +276,7 @@ const Messages = () => {
             </div>
 
             <div className="flex-1 relative overflow-y-auto p-4 space-y-2">
-              {messages.map((msg: any, i: number) => (
+              {messages.map((msg: Message, i: number) => (
                 <motion.div
                   key={i}
                   initial={{ opacity: 0, y: 10 }}
