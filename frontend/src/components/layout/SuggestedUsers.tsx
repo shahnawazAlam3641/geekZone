@@ -3,6 +3,7 @@ import axios from "axios";
 import { motion } from "framer-motion";
 import UserCard from "../common/UserCard";
 import { BASE_URL } from "../../utils/constants";
+import { User } from "../../store/slices/authSlice";
 
 interface Props {
   isSidebarOpen: boolean;

@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { BadgeCheck } from "lucide-react";
+import { User } from "../../store/slices/authSlice";
 
 interface UserCardProps {
   user: User;
