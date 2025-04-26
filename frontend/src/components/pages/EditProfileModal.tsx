@@ -1,6 +1,6 @@
 import { useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Upload, Loader2 } from "lucide-react";
+import { X, Upload } from "lucide-react";
 import axios from "axios";
 import { BASE_URL } from "../../utils/constants";
 import { useForm } from "react-hook-form";
@@ -27,7 +27,6 @@ const EditProfileModal = ({
   profile,
   onUpdate,
 }: EditProfileModalProps) => {
-  const [isUploading, setIsUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const { user } = useAppSelector((state) => state.auth);
@@ -127,13 +126,8 @@ const EditProfileModal = ({
                     type="button"
                     onClick={() => fileInputRef.current?.click()}
                     className="absolute bottom-0 right-0 bg-primary p-2 rounded-full hover:bg-primary/90"
-                    disabled={isUploading}
                   >
-                    {isUploading ? (
-                      <Loader2 className="w-5 h-5 animate-spin" />
-                    ) : (
-                      <Upload className="w-5 h-5" />
-                    )}
+                    <Upload className="w-5 h-5" />
                   </button>
                   <input
                     type="file"

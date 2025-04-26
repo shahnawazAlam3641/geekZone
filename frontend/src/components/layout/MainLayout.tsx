@@ -21,7 +21,7 @@ export default function MainLayout({ children }: MainLayoutProps) {
           isSidebarOpen ? "translate-x-0" : "-translate-x-80"
         } lg:translate-x-0 transition-transform duration-200 ease-in-out lg:relative fixed inset-y-0 left-0 z-40`}
       >
-        <Sidebar onClose={() => setIsSidebarOpen(false)} />
+        <Sidebar />
       </div>
 
       {/* Main content + Suggested Users */}

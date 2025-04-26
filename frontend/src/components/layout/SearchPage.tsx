@@ -5,6 +5,7 @@ import useDebounce from "../../hooks/useDebounce";
 import { BASE_URL } from "../../utils/constants";
 import UserCard from "../common/UserCard";
 import Spinner from "../common/spinner";
+import { User } from "../../store/slices/authSlice";
 
 export default function SearchPage() {
   const [query, setQuery] = useState("");

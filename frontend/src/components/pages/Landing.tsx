@@ -1,4 +1,3 @@
-import React from "react";
 import { motion } from "motion/react";
 import FeatureCard from "../common/FeatureCard";
 import { Code2, Shield, Zap } from "lucide-react";
