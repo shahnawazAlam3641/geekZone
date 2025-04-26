@@ -99,9 +99,7 @@ const Feed = () => {
       }
     };
 
-    if (posts.length < 1) {
-      fetchPosts();
-    }
+    fetchPosts();
 
     return () => {
       isMounted = false;
