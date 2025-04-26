@@ -1,6 +1,7 @@
 import { io } from "socket.io-client";
+import { SOCKET_URL } from "./constants";
 
-export const socket = io(process.env.VITE_SOCKET_URL, {
+export const socket = io(SOCKET_URL, {
   withCredentials: true,
   autoConnect: false,
 });
