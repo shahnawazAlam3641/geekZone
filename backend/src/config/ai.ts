@@ -10,7 +10,6 @@ export async function enhanceText(prompt: string) {
     model: "gemini-2.0-flash-lite",
     contents: prompt,
   });
-  console.log(response);
 
   return response.text;
 }

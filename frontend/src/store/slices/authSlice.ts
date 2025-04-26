@@ -35,7 +35,6 @@ const authSlice = createSlice({
     },
     setLoading: (state, action) => {
       state.loading = action.payload;
-      console.log("loading auth changed to: " + state.loading);
     },
     setError: (state, action) => {
       state.error = action.payload;
@@ -58,12 +57,10 @@ const authSlice = createSlice({
       });
       if (indexOfFriend) {
         state.user?.friends.splice(indexOfFriend, 1);
-        console.log("unfriend success ", indexOfFriend);
       }
     },
 
     addCurrentUserFriend: (state, action) => {
-      console.log("ran but not worked");
       state.user?.friends.push(action.payload);
     },
   },

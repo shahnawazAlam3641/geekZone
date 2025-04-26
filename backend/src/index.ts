@@ -60,34 +60,24 @@ app.use("/api/v1/ai", aiRoutes);
 const onlineUsers = new Map<string, string>();
 
 io.on("connection", (socket) => {
-  console.log("A user connected");
-
   const userId = socket.handshake.auth.userId;
   if (userId) {
     socket.join(userId);
-    console.log(`User ${userId} connected and joined room ${userId}`);
   }
 
   socket.on("user-online", (userId: string) => {
     onlineUsers.set(userId, socket.id);
     socket.join(userId);
 
-    console.log("Online Users:", [...onlineUsers.keys()]);
-
     // Notify all clients who is online
     io.emit("update-online-users", [...onlineUsers.keys()]);
   });
 
   socket.on("join-room", ({ conversationId }: { conversationId: string }) => {
-    console.log(conversationId);
-
     socket.join(conversationId);
-
-    console.log("room joined");
   });
 
   socket.on("leave-room", ({ conversationId }: { conversationId: string }) => {
-    console.log(conversationId);
     socket.leave(conversationId);
   });
 
@@ -104,8 +94,6 @@ io.on("connection", (socket) => {
         });
       }
 
-      console.log(message);
-
       const newMessage = await Message.create({
         conversation: conversation._id,
         sender: message.sender,
@@ -117,7 +105,6 @@ io.on("connection", (socket) => {
       await conversation.save();
 
       io.to(conversationId).emit("receive-message", message);
-      console.log("message sent");
     } catch (error) {
       console.log(error);
     }
@@ -132,7 +119,6 @@ io.on("connection", (socket) => {
       conversationId: string;
       username: string;
     }) => {
-      console.log(username, " is typing");
       socket.to(conversationId).emit("user-typing", { username });
     }
   );
@@ -146,8 +132,6 @@ io.on("connection", (socket) => {
       conversationId: string;
       username: string;
     }) => {
-      console.log(username, " stopped typing");
-
       socket.to(conversationId).emit("user-stop-typing", { username });
     }
   );
@@ -159,8 +143,6 @@ io.on("connection", (socket) => {
         break;
       }
     }
-
-    console.log("User disconnected");
     io.emit("update-online-users", [...onlineUsers.keys()]);
   });
 });

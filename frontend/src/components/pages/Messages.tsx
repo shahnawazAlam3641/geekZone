@@ -42,13 +42,11 @@ const Messages = () => {
 
   const fetchOldMessages = async () => {
     try {
-      console.log("fetching old messages");
       dispatch(setMessages([]));
       const response = await axios.get(
         `${BASE_URL}/conversation/get/${selectedFriend?._id}`,
         { withCredentials: true }
       );
-      console.log(response.data);
 
       dispatch(setMessages(response.data.messages));
     } catch (error) {
@@ -61,8 +59,6 @@ const Messages = () => {
       const response = await axios.get(`${BASE_URL}/users/friends`, {
         withCredentials: true,
       });
-
-      console.log(response?.data.friends);
       setFriends(response.data.friends);
       if (conversationId) {
         const currentFriendChat = response.data.friends.filter(
@@ -74,15 +70,10 @@ const Messages = () => {
         );
         setSelectedFriend(currentFriendChat[0]);
       }
-      console.log(response.data);
     } catch (error) {
       console.log(error);
     }
   };
-
-  useEffect(() => {
-    console.log(isOnline);
-  }, [isOnline]);
 
   useEffect(() => {
     try {
@@ -100,11 +91,9 @@ const Messages = () => {
         dispatch(addMessage({ ...message }));
       });
       socket.on("user-typing", ({ username }) => {
-        console.log(username, "is typing");
         dispatch(setTypingUser(username));
       });
       socket.on("user-stop-typing", () => {
-        console.log("stopped typing");
         dispatch(setTypingUser(null));
       });
     } catch (error) {

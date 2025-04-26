@@ -100,16 +100,12 @@ const UserProfile = () => {
 
   const convId = [currentUser?._id, userId].sort().join("_");
 
-  console.log(useParams());
-
   const fetchUserProfile = async (userId: string): Promise<void> => {
     try {
       dispatch(setLoading(true));
       const response = await axios.get(`${BASE_URL}/users/${userId}`, {
         withCredentials: true,
       });
-
-      console.log(response);
 
       if (response?.data?._id === currentUser?._id) {
         dispatch(setIsOwnProfile(true));
@@ -519,13 +515,6 @@ const UserProfile = () => {
                   </>
                 )}
 
-                {console.log(
-                  !profile.sentFriendRequests?.includes(currentUser?._id || ""),
-                  !profile.recievedFriendRequests?.includes(
-                    currentUser?._id || ""
-                  ),
-                  !profile?.friends?.includes(currentUser?._id || "")
-                )}
                 {!profile.sentFriendRequests?.includes(
                   currentUser?._id || ""
                 ) &&

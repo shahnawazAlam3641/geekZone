@@ -72,8 +72,6 @@ router.post(
     try {
       const { userId } = req.params;
       const friendUser = await User.findById(userId).select("-password");
-
-      console.log("first----------->>>>>>>>>>", friendUser);
       const currentUser = await User.findById(req.userId).select("-password");
 
       if (!friendUser || !currentUser) {
@@ -452,8 +450,6 @@ router.get(
         res.status(404).json({ success: false, message: "User not found" });
         return;
       }
-
-      console.log(user);
 
       // Find all posts related to the user
       const allPosts = await Post.find({

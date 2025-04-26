@@ -126,10 +126,7 @@ const Post = ({
           {isModal && (
             <X
               onClick={() => {
-                console.log("run X");
-                console.log(setSelectedPost);
                 if (setSelectedPost) {
-                  console.log("run if");
                   setSelectedPost(null);
                 }
               }}

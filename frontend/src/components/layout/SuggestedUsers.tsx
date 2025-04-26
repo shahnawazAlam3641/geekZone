@@ -17,7 +17,6 @@ export default function SuggestedUsers({ isSidebarOpen }: Props) {
         const res = await axios.get(`${BASE_URL}/users/all`, {
           withCredentials: true,
         });
-        console.log(res.data);
         setUsers(res.data);
       } catch (err) {
         console.error(err);

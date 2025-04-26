@@ -64,7 +64,6 @@ const Register = () => {
           <form
             onSubmit={handleSubmit((data) => {
               registerUser(data);
-              console.log(data);
             })}
             className="space-y-6"
           >

@@ -20,24 +20,12 @@ export default function ProtectedRoute({
     }
   }, [loading]);
 
-  console.log(
-    "Protected route render - authenticated:",
-    !!user,
-    "loading:",
-    loading,
-    "initialCheckDone:",
-    initialCheckDone
-  );
-
   if (loading || !initialCheckDone) {
     return <h1>Loading...</h1>;
   }
 
   if (!user) {
-    console.log("Not authenticated, redirecting to login");
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
-
-  console.log("User authenticated, rendering children");
   return <>{children}</>;
 }

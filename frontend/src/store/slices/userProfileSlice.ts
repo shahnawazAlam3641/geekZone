@@ -34,7 +34,6 @@ const userProfileSlice = createSlice({
   initialState,
   reducers: {
     setProfile: (state, action: PayloadAction<UserProfile>) => {
-      console.log(action.payload);
       state.profile = action.payload;
       state.loading = false;
       state.error = null;
@@ -47,7 +46,6 @@ const userProfileSlice = createSlice({
       state.loading = false;
     },
     setIsOwnProfile: (state, action: PayloadAction<boolean>) => {
-      console.log("runnnnnnnnnnnnnnnnnnn");
       state.isOwnProfile = action.payload;
     },
     updateProfile: (state, action: PayloadAction<Partial<UserProfile>>) => {

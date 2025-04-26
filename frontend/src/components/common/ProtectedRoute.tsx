@@ -14,10 +14,8 @@ const ProtectedRoute = ({
   const { isAuthenticated } = useAuth();
   const location = useLocation();
   const { loading } = useAppSelector((state) => state.auth);
-  console.log(isAuthenticated);
 
   if (loading) {
-    console.log("loading state");
     // Show loading state or a skeleton while auth is being checked
     return (
       <div className="flex justify-center items-center h-screen">
@@ -25,23 +23,16 @@ const ProtectedRoute = ({
       </div>
     );
   }
-  console.log("loading state: " + loading);
-  console.log(isAuthenticated);
 
   if (requireAuth && !isAuthenticated) {
-    console.log("first");
     // Redirect to login if trying to access protected route while not authenticated
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
   if (!requireAuth && isAuthenticated) {
-    console.log("second");
-
     // Redirect to feed if trying to access auth pages while authenticated
     return <Navigate to="/feed" replace />;
   }
-
-  console.log("fine");
 
   return <>{children}</>;
 };

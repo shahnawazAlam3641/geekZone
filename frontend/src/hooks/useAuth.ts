@@ -17,8 +17,6 @@ export function useAuth() {
       const checkAuth = async () => {
         try {
           dispatch(setLoading(true));
-          console.log("loading auth: " + loading);
-          console.log("Checking auth please wait...........");
           const response = await axios.get(BASE_URL + "/auth/me", {
             withCredentials: true,
           });

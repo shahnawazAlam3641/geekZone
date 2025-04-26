@@ -13,8 +13,6 @@ export default function MainLayout({ children }: MainLayoutProps) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
   const location = useLocation();
 
-  console.log(location);
-
   return (
     <div className="flex overflow-hidden h-screen bg-background relative">
       {/* Sidebar */}

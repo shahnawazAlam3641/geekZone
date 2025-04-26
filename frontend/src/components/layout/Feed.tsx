@@ -66,8 +66,6 @@ const Feed = () => {
         }
       );
 
-      console.log(response);
-
       // Update the text area with the enhanced content
       if (response.data && response.data.enhancedText) {
         setValue("content", response.data.enhancedText);

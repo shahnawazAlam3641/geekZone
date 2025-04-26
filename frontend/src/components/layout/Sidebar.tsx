@@ -48,7 +48,6 @@ const Sidebar = () => {
     }
 
     socket.on("new-notification", (notification) => {
-      console.log("got something");
       dispatch(addNotification(notification));
     });
 

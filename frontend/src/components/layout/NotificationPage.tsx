@@ -38,7 +38,6 @@ export default function NotificationPage() {
         withCredentials: true,
       });
       setSelectedPost(response.data.post);
-      console.log(response.data.post);
     } catch (error) {
       console.log(error);
     }
@@ -46,13 +45,11 @@ export default function NotificationPage() {
 
   const markAllNotificationAsRead = async () => {
     try {
-      const response = await axios.put(
+      await axios.put(
         `${BASE_URL}/notifications/readAll`,
         {},
         { withCredentials: true }
       );
-
-      console.log(response);
     } catch (error) {
       console.log(error);
     }
