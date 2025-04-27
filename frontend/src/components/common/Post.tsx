@@ -137,7 +137,7 @@ const Post = ({
 
         {/* Post Content */}
         {post?.content && (
-          <p className="text-gray-200 mb-4 whitespace-pre-wrap">
+          <p className="text-gray-200 mb-4 whitespace-pre-wrap break-words">
             {post?.content}
           </p>
         )}
@@ -202,7 +202,7 @@ const Post = ({
                 {...register("newComment")}
                 type="text"
                 placeholder="Write a comment..."
-                className="flex-1 bg-background rounded-lg px-4 py-2 border border-gray-700 focus:border-primary focus:outline-none transition-colors"
+                className="w-full bg-background rounded-lg px-4 py-2 border border-gray-700 focus:border-primary focus:outline-none transition-colors"
               />
               <button
                 type="submit"
@@ -229,12 +229,14 @@ const Post = ({
                     alt={comment.user.username}
                     className="w-8 h-8 rounded-full object-cover"
                   />
-                  <div className="flex-1">
+                  <div className="  w-full overflow-hidden">
                     <div className="bg-background rounded-lg px-4 py-2">
                       <p className="font-semibold text-sm">
                         {comment.user.username}
                       </p>
-                      <p className="text-gray-300">{comment.content}</p>
+                      <p className="text-gray-300 break-words">
+                        {comment.content}
+                      </p>
                     </div>
                     <p className="text-xs text-gray-500 mt-1">
                       {formatDistanceToNow(new Date(comment.createdAt), {
