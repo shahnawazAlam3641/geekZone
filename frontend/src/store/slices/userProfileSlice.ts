@@ -12,6 +12,7 @@ interface UserProfile {
   profilePicture: string;
   posts: Post[];
   savedPosts: Post[];
+  likedPosts: Post[];
 }
 
 interface UserProfileState {
