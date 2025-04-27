@@ -185,7 +185,7 @@ const Feed = () => {
             >
               <button
                 onClick={() => setShowModal(false)}
-                className="absolute top-3 right-3 p-1 rounded-full hover:bg-gray-700 transition-colors"
+                className="absolute top-3 right-3 p-1 cursor-pointer rounded-full hover:bg-gray-700 transition-colors"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -193,7 +193,10 @@ const Feed = () => {
               {/* User Info */}
               <div className="flex items-center mb-4">
                 <img
-                  src={user?.profilePicture}
+                  src={
+                    user?.profilePicture ||
+                    `https://api.dicebear.com/5.x/initials/svg?seed=${user?.username}`
+                  }
                   alt="Profile"
                   className="w-10 h-10 rounded-full object-cover"
                 />
@@ -278,7 +281,7 @@ const Feed = () => {
                   </button>
                   <button
                     type="submit"
-                    className="btn-primary disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="btn-primary disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
                     disabled={!content?.trim()}
                   >
                     Post

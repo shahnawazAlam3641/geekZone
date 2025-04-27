@@ -16,6 +16,11 @@ import {
 import { FieldValues, useForm } from "react-hook-form";
 import { setLoading, updatePost } from "../../store/slices/postSlice";
 import { Link } from "react-router";
+import {
+  addUserProfilePostLike,
+  removeUserProfilePostLike,
+  updateUserProfilePost,
+} from "../../store/slices/userProfileSlice";
 
 interface Comment {
   _id: string;
@@ -48,11 +53,12 @@ const Post = ({
   isModal?: boolean;
   setSelectedPost?: (post: PostSchema | null) => void;
 }) => {
-  const { register, handleSubmit } = useForm();
+  const { register, handleSubmit, reset } = useForm();
   const [showComments, setShowComments] = useState(false);
   const dispatch = useAppDispatch();
   const { user } = useAppSelector((state) => state.auth);
   const { loading } = useAppSelector((state) => state.posts);
+  const { profile } = useAppSelector((state) => state.userProfile);
 
   const handleLike = async () => {
     try {
@@ -62,6 +68,26 @@ const Post = ({
         { withCredentials: true }
       );
       dispatch(updatePost(response.data.post));
+
+      if (profile?.posts) {
+        const postIndex = profile?.posts?.findIndex((p) => {
+          return p._id === post?._id;
+        });
+
+        if (
+          user &&
+          profile &&
+          !profile.posts[postIndex].likes.includes(user?._id)
+        ) {
+          dispatch(addUserProfilePostLike({ postIndex, userId: user._id }));
+        } else if (
+          user &&
+          profile &&
+          profile.posts[postIndex].likes.includes(user?._id)
+        ) {
+          dispatch(removeUserProfilePostLike({ postIndex, userId: user._id }));
+        }
+      }
     } catch (error) {
       console.error("Error liking post:", error);
     }
@@ -79,6 +105,11 @@ const Post = ({
       );
       dispatch(updatePost(response.data.post));
       setShowComments(true);
+      reset();
+
+      if (profile?.posts) {
+        dispatch(updateUserProfilePost(response.data.post));
+      }
     } catch (error) {
       console.error("Failed to add comment:", error);
     } finally {
@@ -155,7 +186,7 @@ const Post = ({
         <div className="flex flex-wrap items-center gap-4 sm:gap-6 text-gray-400">
           <button
             onClick={handleLike}
-            className={`flex items-center gap-2 transition-colors ${
+            className={`flex items-center gap-2 transition-colors cursor-pointer ${
               isLiked ? "text-primary" : "hover:text-primary"
             }`}
           >
@@ -164,7 +195,7 @@ const Post = ({
           </button>
           <button
             onClick={() => setShowComments(!showComments)}
-            className="flex items-center gap-2 hover:text-primary transition-colors"
+            className="flex items-center gap-2 cursor-pointer hover:text-primary transition-colors"
           >
             <MessageCircle className="w-5 h-5" />
             <span>{post?.comments?.length}</span>
@@ -206,7 +237,7 @@ const Post = ({
               />
               <button
                 type="submit"
-                className="btn-primary px-4 py-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="btn-primary px-4 py-2 disabled:opacity-50 cursor-pointer disabled:cursor-not-allowed"
               >
                 <Send className="w-4 h-4" />
               </button>

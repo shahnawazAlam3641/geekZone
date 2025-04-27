@@ -12,7 +12,6 @@ interface UserProfile {
   profilePicture: string;
   posts: Post[];
   savedPosts: Post[];
-  likedPosts: Post[];
 }
 
 interface UserProfileState {
@@ -53,6 +52,38 @@ const userProfileSlice = createSlice({
         state.profile = { ...state.profile, ...action.payload };
       }
     },
+    addUserProfilePostLike: (state, action) => {
+      const { postIndex, userId } = action.payload;
+      if (state.profile && state.profile.posts) {
+        if (postIndex !== -1) {
+          state.profile?.posts[postIndex]?.likes.push(userId);
+        }
+      }
+    },
+    removeUserProfilePostLike: (state, action) => {
+      const { postIndex, userId } = action.payload;
+      if (state.profile && state.profile.posts) {
+        if (postIndex !== -1) {
+          const likeIndex = state.profile.posts[postIndex].likes.findIndex(
+            (like) => {
+              return like === userId;
+            }
+          );
+
+          state.profile.posts[postIndex].likes.splice(likeIndex, 1);
+        }
+      }
+    },
+    updateUserProfilePost: (state, action) => {
+      if (state.profile && state.profile.posts) {
+        const index = state.profile.posts.findIndex((post) => {
+          return post._id === action.payload?._id;
+        });
+        if (index !== -1) {
+          state.profile.posts[index] = action.payload;
+        }
+      }
+    },
   },
 });
 
@@ -62,6 +93,9 @@ export const {
   setError,
   setIsOwnProfile,
   updateProfile,
+  addUserProfilePostLike,
+  removeUserProfilePostLike,
+  updateUserProfilePost,
 } = userProfileSlice.actions;
 
 export default userProfileSlice.reducer;

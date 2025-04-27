@@ -52,11 +52,13 @@ const authSlice = createSlice({
       state?.user?.sentFriendRequests.push(action.payload);
     },
     removeCurrentUserFriend: (state, action) => {
-      const indexOfFriend = state.user?.friends.findIndex((friend) => {
-        return friend == action.payload;
-      });
-      if (indexOfFriend) {
-        state.user?.friends.splice(indexOfFriend, 1);
+      if (state.user && state.user.friends) {
+        const indexOfFriend = state.user.friends.findIndex((friend) => {
+          return friend === action.payload;
+        });
+        if (indexOfFriend !== -1) {
+          state.user.friends.splice(indexOfFriend, 1);
+        }
       }
     },
 

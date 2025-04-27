@@ -457,7 +457,6 @@ router.get(
       })
         .select("content image likes comments createdAt author")
         .populate("author", "username profilePicture")
-        .populate("likes", "username profilePicture")
         .populate("comments.user", "username profilePicture");
 
       // Filter posts by author
