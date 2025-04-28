@@ -7,6 +7,7 @@ import { BASE_URL } from "../../utils/constants";
 import { setUser, setLoading, setError } from "../../store/slices/authSlice";
 import { useAppDispatch, useAppSelector } from "../../store";
 import { useLocation } from "react-router";
+import toast from "react-hot-toast";
 
 const Login = () => {
   const { loading, error } = useAppSelector((state) => state.auth);
@@ -19,6 +20,12 @@ const Login = () => {
   const dispatch = useAppDispatch();
 
   const loginUser = async (data: FieldValues) => {
+    const toastTimer = setTimeout(() => {
+      toast.loading("Starting backend server, please wait...", {
+        id: "login-loading-toast",
+      });
+    }, 6000);
+
     try {
       dispatch(setLoading(true));
       dispatch(setError(null));
@@ -27,6 +34,9 @@ const Login = () => {
         withCredentials: true,
       });
 
+      clearTimeout(toastTimer);
+      toast.dismiss("login-loading-toast");
+
       if (response.data.success && response.data.user) {
         dispatch(setUser(response.data.user));
         navigate(from, { replace: true });
@@ -34,6 +44,9 @@ const Login = () => {
         dispatch(setError("Login failed. Please try again."));
       }
     } catch (err) {
+      clearTimeout(toastTimer);
+      toast.dismiss("login-loading-toast");
+
       const error = err as AxiosError<{
         message: string;
         success: boolean;

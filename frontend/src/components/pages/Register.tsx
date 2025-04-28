@@ -6,6 +6,7 @@ import { Link, useNavigate } from "react-router";
 import { BASE_URL } from "../../utils/constants";
 import { setUser, setLoading, setError } from "../../store/slices/authSlice";
 import { useAppDispatch, useAppSelector } from "../../store";
+import toast from "react-hot-toast";
 
 const Register = () => {
   const { register, handleSubmit } = useForm();
@@ -15,6 +16,12 @@ const Register = () => {
   const navigate = useNavigate();
 
   const registerUser = async (data: FieldValues) => {
+    const toastTimer = setTimeout(() => {
+      toast.loading("Starting backend server, please wait...", {
+        id: "register-loading-toast",
+      });
+    }, 6000);
+
     try {
       dispatch(setLoading(true));
       dispatch(setError(null));
@@ -23,10 +30,16 @@ const Register = () => {
         withCredentials: true,
       });
 
+      clearTimeout(toastTimer);
+      toast.dismiss("register-loading-toast");
+
       dispatch(setUser(response.data.user));
 
       navigate("/feed");
     } catch (err) {
+      clearTimeout(toastTimer);
+      toast.dismiss("register-loading-toast");
+
       setLoading(false);
 
       const error = err as AxiosError<{
