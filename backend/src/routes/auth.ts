@@ -183,7 +183,9 @@ router.post("/login", async (req: Request, res: Response): Promise<void> => {
 router.post("/logout", (req: Request, res: Response) => {
   res.cookie("token", "", {
     httpOnly: true,
-    expires: new Date(0),
+    secure: process.env.NODE_ENV === "production" ? true : false,
+    sameSite: process.env.NODE_ENV === "production" ? "none" : "lax",
+    maxAge: Number(new Date(Date.now())),
   });
   res.json({ success: true, message: "Logged out successfully" });
 });
