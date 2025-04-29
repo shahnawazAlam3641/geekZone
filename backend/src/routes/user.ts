@@ -552,11 +552,49 @@ router.put(
       }
 
       await user.save();
-      res.json({
-        success: true,
-        message: "Profile updated successfully",
-        user,
+
+      user.password = "";
+
+      // Find all posts related to the user
+      const allPosts = await Post.find({
+        $or: [{ author: userId }, { likes: userId }],
+      })
+        .select("content image likes comments createdAt author")
+        .populate("author", "username profilePicture")
+        .populate("comments.user", "username profilePicture");
+
+      // Filter posts by author
+      const userPosts = allPosts.filter(
+        (post) => post.author._id.toString() === userId
+      );
+
+      // Filter posts by likes
+      const likedPosts = allPosts.filter((post) => {
+        if (!post.likes) return false;
+        return post.likes.some((like) => like._id.toString() === userId);
       });
+
+      // Filter saved posts
+      const savedPosts = allPosts.filter((post) => {
+        if (!post.savedBy) return false;
+        return post.savedBy.some((saved) => saved._id.toString() === userId);
+      });
+
+      // Convert user to plain object
+      const userObject = user.toObject();
+
+      res.json({
+        ...userObject,
+        posts: userPosts,
+        likedPosts,
+        savedPosts,
+      });
+
+      // res.json({
+      //   success: true,
+      //   message: "Profile updated successfully",
+      //   user,
+      // });
     } catch (error) {
       console.error(error);
       res.status(500).json({ success: false, message: "Something went wrong" });

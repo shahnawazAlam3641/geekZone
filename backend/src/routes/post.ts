@@ -124,6 +124,11 @@ router.post(
           post: post._id,
         });
 
+        await notification.populate([
+          { path: "sender", select: "username profilePicture" },
+          { path: "post", select: "content" },
+        ]);
+
         if (req.io) {
           req.io
             .to(post.author._id.toString())
