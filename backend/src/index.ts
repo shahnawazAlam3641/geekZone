@@ -44,9 +44,8 @@ app.use((req: Request, res, next) => {
 
 const PORT = process.env.PORT || 3001;
 
-app.get("/api/v1/check", (req, res) => {
-  console.log("Backend is alive");
-  res.send("Backend is alive");
+app.get("/api/v1/ping", (req, res) => {
+  res.send("Pong");
 });
 
 app.use("/api/v1/auth", authRoutes);
